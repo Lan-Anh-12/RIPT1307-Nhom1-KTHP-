@@ -19,11 +19,6 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
     // 1. Dòng này giúp bạn nhìn thấy chuỗi băm do chính ứng dụng của bạn sinh ra
-    String maHoaChuan = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("123456");
-    System.out.println("CHUOI BAM XIN TRÊN MAY BAN: " + maHoaChuan);
-
-    System.out.println("FE gui Email: " + loginRequest.getEmail());
-    System.out.println("FE gui Password: " + loginRequest.getPassword());
     try {
         Map<String, Object> result = authService.login(loginRequest);
         return ResponseEntity.ok(result);
@@ -32,4 +27,5 @@ public class AuthController {
         return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
     }
     }
+    
 }
