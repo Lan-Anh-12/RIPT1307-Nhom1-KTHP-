@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     // Tự động sinh câu lệnh SELECT * FROM app_user WHERE email = ?
     Optional<User> findByEmail(String email);
+    
 }

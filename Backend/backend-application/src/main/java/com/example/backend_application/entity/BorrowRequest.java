@@ -22,9 +22,6 @@ public class BorrowRequest {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "student_id", length = 50)
-    private String studentId;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -39,8 +36,11 @@ public class BorrowRequest {
 
     @Column(name = "device_item_id")
     private Long deviceItemId; 
+    
+    @Column(name = "quantity")
+    private Integer quantity;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "app_user_id", referencedColumnName = "id")
     @JsonIgnoreProperties({"password", "hibernateLazyInitializer", "handler"}) // Chặn vòng lặp hoàn toàn
     private User appUser;

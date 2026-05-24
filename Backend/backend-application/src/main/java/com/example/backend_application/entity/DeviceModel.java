@@ -44,7 +44,7 @@ public class DeviceModel {
     @Column(name = "status", length = 50)
     private String status;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // Chặn vòng lặp và lỗi Lazy của Jackson
     private Category category;

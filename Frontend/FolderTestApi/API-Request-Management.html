@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Test API Request Management - Debug Mode</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .controls { margin-bottom: 20px; }
+        /* Style cho khung hiển thị JSON */
+        #jsonDisplay { 
+            background: #272822; 
+            color: #f8f8f2; 
+            padding: 15px; 
+            border-radius: 5px; 
+            white-space: pre-wrap; 
+            overflow-x: auto; 
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Kiểm tra dữ liệu API (Debug Mode)</h2>
+
+    <div class="controls">
+        <input type="text" id="nameInput" placeholder="Nhập tên sinh viên...">
+        <button onclick="fetchData()">Lấy dữ liệu thô</button>
+    </div>
+
+    <pre id="jsonDisplay">Đang chờ dữ liệu...</pre>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api/requests/search';
+
+        async function fetchData() {
+            const name = document.getElementById('nameInput').value;
+            const url = `${API_URL}?name=${encodeURIComponent(name)}`;
+            const display = document.getElementById('jsonDisplay');
+
+            try {
+                display.innerText = "Đang gọi API...";
+                const response = await fetch(url);
+                
+                // Lấy dữ liệu dạng text trước để check xem có phải JSON không
+                const rawData = await response.json();
+                
+                // Hiển thị toàn bộ JSON đã format (2 là số khoảng trắng thụt đầu dòng)
+                display.innerText = JSON.stringify(rawData, null, 2);
+                
+                console.log('Dữ liệu nhận được:', rawData);
+                
+            } catch (error) {
+                display.innerText = "Lỗi kết nối: " + error.message;
+                console.error('Lỗi khi gọi API:', error);
+            }
+        }
+
+        // Tự động fetch khi load trang
+        fetchData();
+    </script>
+</body>
+</html>

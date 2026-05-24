@@ -1,9 +1,13 @@
 package com.example.backend_application.service;
 
 import com.example.backend_application.dto.ServiceRequestDTO;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface RequestManagementService {
-    Page<ServiceRequestDTO> searchRequests(String keyword, Pageable pageable);
+   // Tìm kiếm yêu cầu mượn thiết bị theo tên sinh viên (tên nằm trong bảng app_user)
+    List<ServiceRequestDTO> searchRequestsByName(String name);
+
+    // Lấy tất cả yêu cầu mượn thiết bị (dùng trong Service)
+    List<ServiceRequestDTO> getAllRequests();
 }
