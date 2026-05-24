@@ -1,4 +1,6 @@
-﻿export default [
+﻿import { icons } from 'antd/lib/image/PreviewGroup';
+
+export default [
 	{
 		path: '/user',
 		layout: false,
@@ -18,11 +20,30 @@
 
 	///////////////////////////////////
 	// DEFAULT MENU
+
 	{
-		path: '/dashboard',
-		name: 'Dashboard',
-		component: './TrangChu',
-		icon: 'HomeOutlined',
+		path: '/danh-sach-thiet-bi',
+		name: 'Danh sách thiết bị',
+		component: './DanhSachThietBi',
+		icon: 'BankOutlined',
+	},
+	{
+		path: '/yeu-cau-muon',
+		name: 'Yêu cầu mượn',
+		component: './YeuCauMuon',
+		icon: 'FileTextOutlined',
+	},
+	{
+		path: '/lich-su-muon',
+		name: 'Lịch sử mượn',
+		component: './LichSuMuon',
+		icon: 'HistoryOutlined',
+	},
+	{
+		path: '/thong-bao',
+		name: 'Thông báo',
+		component: './Tbao',
+		icon: 'BellOutlined',
 	},
 	{
 		path: '/gioi-thieu',
@@ -30,27 +51,7 @@
 		component: './TienIch/GioiThieu',
 		hideInMenu: true,
 	},
-	{
-		path: '/random-user',
-		name: 'RandomUser',
-		component: './RandomUser',
-		icon: 'ArrowsAltOutlined',
-	},
-
-	// DANH MUC HE THONG
-	// {
-	// 	name: 'DanhMuc',
-	// 	path: '/danh-muc',
-	// 	icon: 'copy',
-	// 	routes: [
-	// 		{
-	// 			name: 'ChucVu',
-	// 			path: 'chuc-vu',
-	// 			component: './DanhMuc/ChucVu',
-	// 		},
-	// 	],
-	// },
-
+	
 	{
 		path: '/notification',
 		routes: [
