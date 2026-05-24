@@ -16,6 +16,11 @@ public class RequestManagementController {
     @Autowired
     private RequestManagementService requestManagementService;
 
+    @GetMapping("/all")
+    public ResponseEntity<List<ServiceRequestDTO>> getAllRequests() {
+        return ResponseEntity.ok(requestManagementService.getAllRequests());
+    }
+
     // api tìm kiếm yêu cầu mượn thiết bị theo tên sinh viên (GET)
     @GetMapping("/search")
     public ResponseEntity<List<ServiceRequestDTO>> searchRequests(
