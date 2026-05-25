@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/requests")
@@ -16,19 +17,42 @@ public class RequestManagementController {
     @Autowired
     private RequestManagementService requestManagementService;
 
+    // Lấy tất cả yêu cầu
     @GetMapping("/all")
     public ResponseEntity<List<ServiceRequestDTO>> getAllRequests() {
         return ResponseEntity.ok(requestManagementService.getAllRequests());
     }
 
-    // api tìm kiếm yêu cầu mượn thiết bị theo tên sinh viên (GET)
+    // Tìm kiếm yêu cầu theo tên sinh viên
     @GetMapping("/search")
     public ResponseEntity<List<ServiceRequestDTO>> searchRequests(
             @RequestParam(value = "name", required = false, defaultValue = "") String name
     ) {
-        // Gọi service trả về List thô
-        List<ServiceRequestDTO> results = requestManagementService.searchRequestsByName(name);
+        return ResponseEntity.ok(requestManagementService.searchRequestsByName(name));
+    }
+
+    // Lấy chi tiết 1 yêu cầu (Dùng cho cả Popup Duyệt và Popup Ghi nhận trả)
+    @GetMapping("/{id}")
+    public ResponseEntity<ServiceRequestDTO> getRequestById(@PathVariable("id") Long id) {
+        ServiceRequestDTO requestDTO = requestManagementService.getRequestById(id);
+        return (requestDTO != null) ? ResponseEntity.ok(requestDTO) : ResponseEntity.notFound().build();
+    }
+
+    // API Xử lý nghiệp vụ: Chuyển trạng thái (PENDING -> APPROVED/REJECTED) 
+    // và (APPROVED -> RETURNED)
+    @PutMapping("/{id}/status")
+    public ResponseEntity<String> updateRequestStatus(
+            @PathVariable("id") Long id,
+            @RequestBody Map<String, String> requestBody
+    ) {
+        String status = requestBody.get("status"); // Giá trị: "APPROVED", "REJECTED", hoặc "RETURNED"
+        String note = requestBody.get("note");     // Nội dung ghi chú
+
+        boolean isUpdated = requestManagementService.updateRequestStatus(id, status, note);
         
-        return ResponseEntity.ok(results);
+        if (isUpdated) {
+            return ResponseEntity.ok("Trạng thái đã được cập nhật thành: " + status);
+        }
+        return ResponseEntity.badRequest().body("Cập nhật thất bại. Vui lòng kiểm tra ID.");
     }
 }
