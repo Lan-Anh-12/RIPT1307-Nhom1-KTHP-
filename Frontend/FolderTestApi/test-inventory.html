@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Tạo Thiết Bị</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .form-group { margin-bottom: 10px; }
+        label { display: inline-block; width: 120px; }
+        #jsonDisplay { 
+            background: #272822; color: #f8f8f2; padding: 15px; 
+            border-radius: 5px; white-space: pre-wrap; margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Tạo thiết bị mới</h2>
+
+    <div class="form-group">
+        <label>Tên thiết bị:</label>
+        <input type="text" id="name" placeholder="Ví dụ: Laptop Dell">
+    </div>
+    <div class="form-group">
+        <label>ID Danh mục:</label>
+        <input type="number" id="categoryId" placeholder="1">
+    </div>
+    <div class="form-group">
+        <label>Số lượng:</label>
+        <input type="number" id="quantity" placeholder="10">
+    </div>
+    <div class="form-group">
+        <label>Mô tả:</label>
+        <input type="text" id="description" placeholder="Mô tả...">
+    </div>
+    <button onclick="createDevice()" style="background: #4CAF50; color: white;">Tạo Thiết Bị</button>
+
+    <pre id="jsonDisplay">Kết quả sẽ hiển thị ở đây...</pre>
+
+    <script>
+        async function createDevice() {
+            const data = {
+                name: document.getElementById('name').value,
+                categoryId: parseInt(document.getElementById('categoryId').value),
+                quantity: parseInt(document.getElementById('quantity').value),
+                description: document.getElementById('description').value,
+                imageUrl: "https://example.com/image.jpg" // Có thể thay bằng input nếu cần
+            };
+
+            const res = await fetch('http://localhost:8080/api/devices/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await res.json();
+            document.getElementById('jsonDisplay').innerText = JSON.stringify(result, null, 2);
+        }
+    </script>
+</body>
+</html>

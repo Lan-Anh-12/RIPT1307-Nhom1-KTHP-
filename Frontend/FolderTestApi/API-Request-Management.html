@@ -2,61 +2,91 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Test API Request Management - Debug Mode</title>
+    <title>Test API Request Management</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; }
-        .controls { margin-bottom: 20px; }
-        /* Style cho khung hiển thị JSON */
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        .controls { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; }
+        .group { margin-bottom: 15px; }
         #jsonDisplay { 
-            background: #272822; 
-            color: #f8f8f2; 
-            padding: 15px; 
-            border-radius: 5px; 
-            white-space: pre-wrap; 
-            overflow-x: auto; 
-            margin-top: 20px;
+            background: #272822; color: #f8f8f2; padding: 15px; 
+            border-radius: 5px; white-space: pre-wrap; overflow-x: auto; 
         }
     </style>
 </head>
 <body>
 
-    <h2>Kiểm tra dữ liệu API (Debug Mode)</h2>
+    <h2>Kiểm tra API Request Management</h2>
 
     <div class="controls">
-        <input type="text" id="nameInput" placeholder="Nhập tên sinh viên...">
-        <button onclick="fetchData()">Lấy dữ liệu thô</button>
+        <div class="group">
+            <button onclick="fetchAll()">Lấy tất cả</button>
+            <input type="text" id="nameInput" placeholder="Tên sinh viên...">
+            <button onclick="searchByName()">Tìm kiếm theo tên</button>
+        </div>
+        <div class="group">
+            <input type="number" id="idInput" placeholder="ID yêu cầu...">
+            <button onclick="getById()">Lấy chi tiết (ID)</button>
+        </div>
+        <div class="group">
+            <input type="text" id="statusInput" placeholder="Trạng thái (APPROVED/RETURNED...)">
+            
+            <button onclick="updateStatus()" style="background: #ffcc00;">Update Trạng thái</button>
+        </div>
     </div>
 
-    <pre id="jsonDisplay">Đang chờ dữ liệu...</pre>
+    <pre id="jsonDisplay">Kết quả sẽ hiển thị ở đây...</pre>
 
     <script>
-        const API_URL = 'http://localhost:8080/api/requests/search';
+        const BASE_URL = 'http://localhost:8080/api/requests';
+        const display = document.getElementById('jsonDisplay');
 
-        async function fetchData() {
-            const name = document.getElementById('nameInput').value;
-            const url = `${API_URL}?name=${encodeURIComponent(name)}`;
-            const display = document.getElementById('jsonDisplay');
+        // Hàm helper hiển thị (tự động format JSON đẹp)
+        const show = (data) => display.innerText = JSON.stringify(data, null, 2);
 
-            try {
-                display.innerText = "Đang gọi API...";
-                const response = await fetch(url);
-                
-                // Lấy dữ liệu dạng text trước để check xem có phải JSON không
-                const rawData = await response.json();
-                
-                // Hiển thị toàn bộ JSON đã format (2 là số khoảng trắng thụt đầu dòng)
-                display.innerText = JSON.stringify(rawData, null, 2);
-                
-                console.log('Dữ liệu nhận được:', rawData);
-                
-            } catch (error) {
-                display.innerText = "Lỗi kết nối: " + error.message;
-                console.error('Lỗi khi gọi API:', error);
-            }
+        // 1. Lấy tất cả
+        async function fetchAll() {
+            const res = await fetch(`${BASE_URL}/all`);
+            show(await res.json());
         }
 
-        // Tự động fetch khi load trang
-        fetchData();
+        // 2. Tìm kiếm
+        async function searchByName() {
+            const name = document.getElementById('nameInput').value;
+            const res = await fetch(`${BASE_URL}/search?name=${encodeURIComponent(name)}`);
+            show(await res.json());
+        }
+
+        // 3. Lấy theo ID
+        async function getById() {
+            const id = document.getElementById('idInput').value;
+            if(!id) return alert("Nhập ID");
+            const res = await fetch(`${BASE_URL}/${id}`);
+            show(await res.json());
+        }
+
+        // 4. Update Trạng thái (PUT)
+        async function updateStatus() {
+            const id = document.getElementById('idInput').value;
+            const status = document.getElementById('statusInput').value;
+            // const note = document.getElementById('noteInput').value;
+            
+            if(!id || !status) return alert("Cần ID và Trạng thái");
+
+            const res = await fetch(`${BASE_URL}/${id}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+            });
+            
+            // Xử lý dữ liệu trả về là DTO
+            if (res.ok) {
+                const updatedData = await res.json();
+                show(updatedData); // Hiển thị DTO đã update
+            } else {
+                const errorText = await res.text();
+                display.innerText = "Lỗi: " + errorText;
+            }
+        }
     </script>
 </body>
 </html>

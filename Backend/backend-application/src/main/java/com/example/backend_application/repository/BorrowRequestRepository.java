@@ -23,6 +23,6 @@ public interface BorrowRequestRepository extends JpaRepository<BorrowRequestView
 
     // Sử dụng Native Query hoặc JPQL cập nhật bảng gốc borrow_request khi Admin duyệt/từ chối từ giao diện
     @Modifying
-    @Query(value = "UPDATE borrow_request SET status = :status WHERE id = :id", nativeQuery = true)
-    int updateStatus(@Param("id") Long id, @Param("status") String status);
+    @Query("UPDATE BorrowRequest b SET b.status = :status, b.actualReturnDate = CASE WHEN :status = 'RETURNED' THEN CURRENT_TIMESTAMP ELSE b.actualReturnDate END WHERE b.id = :id")
+    int updateRequestDetails(@Param("id") Long id, @Param("status") String status);
 }

@@ -1,6 +1,7 @@
 package com.example.backend_application.service;
 
 import com.example.backend_application.dto.ServiceRequestDTO;
+import com.example.backend_application.entity.BorrowRequest;
 import com.example.backend_application.repository.BorrowRequestRepository;
 import com.example.backend_application.view.BorrowRequestView;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class RequestManagementServiceImpl implements RequestManagementService {
@@ -45,17 +47,21 @@ public class RequestManagementServiceImpl implements RequestManagementService {
      */
     @Override
     @Transactional
-    public boolean updateRequestStatus(Long id, String status, String note) {
-        // Gọi phương thức 2 tham số hiện có trong Repository để tránh lỗi biên dịch
-        int updatedRows = borrowRequestRepository.updateStatus(id, status);
+    public ServiceRequestDTO updateRequestStatus(Long id, String status) {
+        // 1. Kiểm tra trạng thái hợp lệ
+        // Chỉ cho phép update nếu request tồn tại
+        Optional<BorrowRequestView> requestOpt = borrowRequestRepository.findByIdRequest(id);
+        if (requestOpt.isEmpty()) return null;
+
+        // 2. Thực hiện cập nhật
+        // Nếu status là RETURNED, hệ thống sẽ tự động set ngày hiện tại vào actualReturnDate qua câu query ở trên
+        int updatedRows = borrowRequestRepository.updateRequestDetails(id, status);
         
         if (updatedRows > 0) {
-            // Ghi chú hiện tại chỉ được in ra log vì Repository không hỗ trợ tham số thứ 3
-            // Cách này an toàn tuyệt đối, không gây lỗi và giữ nguyên cấu trúc hệ thống cũ
-            System.out.println("Đã cập nhật trạng thái ID " + id + " thành " + status + ". Ghi chú: " + note);
-            return true;
+            System.out.println("Đã cập nhật ID " + id + " sang trạng thái " + status);
+            return getRequestById(id);
         }
-        return false;
+        return null;
     }
 
     private ServiceRequestDTO mapViewToDTO(BorrowRequestView view) {
@@ -67,8 +73,8 @@ public class RequestManagementServiceImpl implements RequestManagementService {
         dto.setQuantity(view.getQuantity());
         dto.setStatus(view.getStatus());
         dto.setCreatedAt(view.getCreatedAt());
-        dto.setExpectedReturnDate(view.getExpectedReturnDate() != null ? view.getExpectedReturnDate().atStartOfDay() : null);
-        
+        dto.setExpectedReturnDate(view.getExpectedReturnDate() );
+        dto.setActualReturnDate(view.getActualReturnDate());
         return dto;
     }
 }
