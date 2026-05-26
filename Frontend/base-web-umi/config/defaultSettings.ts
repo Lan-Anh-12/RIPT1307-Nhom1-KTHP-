@@ -7,14 +7,14 @@ const Settings: LayoutSettings & {
 	siderWidth: number;
 } = {
 	navTheme: 'light',
-	primaryColor: process.env.APP_CONFIG_PRIMARY_COLOR,
+	primaryColor: "#32CD32",
 	borderRadiusBase: '2px',
 	layout: 'mix',
 	contentWidth: 'Fluid',
 	fixedHeader: false,
 	fixSiderbar: true,
 	colorWeak: false,
-	title: 'LẬP TRÌNH WEB - RIPT',
+	title: 'Hệ thống cho mượn thiết bị',
 	pwa: false,
 	logo: '/logo.png',
 	iconfontUrl: '',

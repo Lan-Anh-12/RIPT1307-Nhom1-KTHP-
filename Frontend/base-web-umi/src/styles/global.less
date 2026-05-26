@@ -545,3 +545,64 @@ canvas {
 		color: var(--primary-color);
 	}
 }
+
+.ant-menu-light.ant-pro-sider-menu {
+  
+  /* 1. Trạng thái bình thường: Ép text và icon sang màu đen hoàn toàn */
+  .ant-menu-item, 
+  .ant-menu-submenu-title,
+  .ant-menu-title-content {
+	margin-left: 8px !important;    
+    margin-right: 8px !important;
+	width: calc(100% - 16px) !important;
+	border-radius: 10px !important;
+    color: #000000 !important;
+
+    span, a, .ant-pro-menu-item-title {
+      color: #000000 !important;
+    }
+
+    .anticon, svg, path {
+      color: #000000 !important;
+      fill: #000000 !important;
+    }
+  }
+
+  /* 2. Trạng thái Hover (Di chuột vào): Giữ màu đen và thêm nền xám nhạt */
+  .ant-menu-item:hover, 
+  .ant-menu-submenu-title:hover,
+  .ant-menu-item-active {
+    background-color: #f5f5f5 !important; /* Nền xám nhạt */
+    
+    span, a, .anticon, svg, path {
+      color: #000000 !important;
+    }
+  }
+
+  /* 3. Trạng thái Selected (Mục đang được chọn): Chữ màu đen đậm và nền xám rõ hơn */
+  li.ant-menu-item-selected {
+    background-color: #e6e6e6 !important; /* Đổi màu nền cam/hồng/xanh cũ thành xám */
+    
+    span, a, .ant-menu-title-content, .ant-pro-menu-item-title {
+      color: #000000 !important;
+      font-weight: 600 !important; /* Làm đậm chữ */
+    }
+
+    .anticon, svg, path {
+      color: #000000 !important;
+      fill: #000000 !important;
+    }
+  }
+  .customSearchBox {
+  // Bo góc mượt ô nhập liệu (bên trái)
+  .ant-input-search .ant-input {
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+  }
+
+  // Bo góc thanh Select phân loại trạng thái
+  .ant-select-selector {
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;  }
+}
+}
