@@ -1,13 +1,12 @@
 package com.example.backend_application.repository;
 
 import com.example.backend_application.entity.DeviceModel;
-import com.example.backend_application.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface InventoryRepository extends JpaRepository<DeviceModel, Long> {
-    <Optional>DeviceModel findById(Long id);
-    
+    // Chỉ cần thêm đúng dòng này vào file cũ của bạn
+    List<DeviceModel> findByNameContainingIgnoreCase(String name);
 }
