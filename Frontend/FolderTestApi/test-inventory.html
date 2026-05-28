@@ -2,59 +2,63 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Test Tạo Thiết Bị</title>
+    <title>Quản lý Thiết bị - Tạo mới</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; }
-        .form-group { margin-bottom: 10px; }
-        label { display: inline-block; width: 120px; }
-        #jsonDisplay { 
-            background: #272822; color: #f8f8f2; padding: 15px; 
-            border-radius: 5px; white-space: pre-wrap; margin-top: 20px;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f9f9f9; }
+        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 400px; margin: auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button:hover { background: #45a049; }
+        #jsonDisplay { background: #272822; color: #f8f8f2; padding: 15px; border-radius: 5px; white-space: pre-wrap; margin-top: 20px; font-size: 13px; max-height: 300px; overflow-y: auto; }
     </style>
 </head>
 <body>
 
-    <h2>Tạo thiết bị mới</h2>
-
-    <div class="form-group">
-        <label>Tên thiết bị:</label>
-        <input type="text" id="name" placeholder="Ví dụ: Laptop Dell">
+    <div class="card">
+        <h2>Tạo thiết bị mới</h2>
+        <div class="form-group"><label>Tên thiết bị:</label><input type="text" id="name" placeholder="Ví dụ: Laptop Dell"></div>
+        <div class="form-group"><label>ID Danh mục:</label><input type="number" id="categoryId" placeholder="1"></div>
+        <div class="form-group"><label>Số lượng:</label><input type="number" id="quantity" placeholder="10"></div>
+        <div class="form-group"><label>Mô tả:</label><textarea id="description" rows="3" placeholder="Mô tả chi tiết..."></textarea></div>
+        <button onclick="createDevice()">Gửi dữ liệu</button>
+        <pre id="jsonDisplay">Kết quả sẽ hiển thị ở đây...</pre>
     </div>
-    <div class="form-group">
-        <label>ID Danh mục:</label>
-        <input type="number" id="categoryId" placeholder="1">
-    </div>
-    <div class="form-group">
-        <label>Số lượng:</label>
-        <input type="number" id="quantity" placeholder="10">
-    </div>
-    <div class="form-group">
-        <label>Mô tả:</label>
-        <input type="text" id="description" placeholder="Mô tả...">
-    </div>
-    <button onclick="createDevice()" style="background: #4CAF50; color: white;">Tạo Thiết Bị</button>
-
-    <pre id="jsonDisplay">Kết quả sẽ hiển thị ở đây...</pre>
 
     <script>
         async function createDevice() {
+            const display = document.getElementById('jsonDisplay');
             const data = {
                 name: document.getElementById('name').value,
                 categoryId: parseInt(document.getElementById('categoryId').value),
                 quantity: parseInt(document.getElementById('quantity').value),
                 description: document.getElementById('description').value,
-                imageUrl: "https://example.com/image.jpg" // Có thể thay bằng input nếu cần
+                imageUrl: "https://example.com/image.jpg"
             };
 
-            const res = await fetch('http://localhost:8080/api/devices/create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
+            display.innerText = "Đang gửi...";
 
-            const result = await res.json();
-            document.getElementById('jsonDisplay').innerText = JSON.stringify(result, null, 2);
+            try {
+                const res = await fetch('http://localhost:8080/api/devices/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+                
+                if (res.ok) {
+                    display.style.color = "#a6e22e"; // Màu xanh lá cho thành công
+                    display.innerText = "THÀNH CÔNG:\n" + JSON.stringify(result, null, 2);
+                } else {
+                    display.style.color = "#f92672"; // Màu hồng cho lỗi
+                    display.innerText = "LỖI SERVER:\n" + JSON.stringify(result, null, 2);
+                }
+            } catch (err) {
+                display.style.color = "#f92672";
+                display.innerText = "LỖI KẾT NỐI:\nKhông thể gọi API. Kiểm tra lại Backend (Port 8080).";
+            }
         }
     </script>
 </body>

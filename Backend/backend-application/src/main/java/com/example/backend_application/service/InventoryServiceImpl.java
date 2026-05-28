@@ -29,7 +29,11 @@ public class InventoryServiceImpl implements InventoryService {
         device.setImage(dto.getImageUrl());
         device.setStock(dto.getQuantity());
         device.setDescription(dto.getDescription());
-        device.setStatus("AVAILABLE");
+        if (dto.getQuantity() != null && dto.getQuantity() > 0) {
+            device.setStatus("AVAILABLE");
+        } else {
+            device.setStatus("UNAVAILABLE");
+        }
 
         // 2. Gán khóa ngoại bằng ID mà không cần sửa Entity 
         // và không cần query database để lấy cả object Category
