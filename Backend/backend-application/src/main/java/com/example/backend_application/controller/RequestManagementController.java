@@ -41,18 +41,13 @@ public class RequestManagementController {
     // API Xử lý nghiệp vụ: Chuyển trạng thái (PENDING -> APPROVED/REJECTED) 
     // và (APPROVED -> RETURNED)
     @PutMapping("/{id}/status")
-    public ResponseEntity<String> updateRequestStatus(
-            @PathVariable("id") Long id,
-            @RequestBody Map<String, String> requestBody
-    ) {
-        String status = requestBody.get("status"); // Giá trị: "APPROVED", "REJECTED", hoặc "RETURNED"
-        String note = requestBody.get("note");     // Nội dung ghi chú
-
-        boolean isUpdated = requestManagementService.updateRequestStatus(id, status, note);
+    public ResponseEntity<?> updateRequestStatus(@PathVariable("id") Long id, @RequestBody Map<String, String> requestBody) {
+        String status = requestBody.get("status");
+        ServiceRequestDTO updated = requestManagementService.updateRequestStatus(id, status);
         
-        if (isUpdated) {
-            return ResponseEntity.ok("Trạng thái đã được cập nhật thành: " + status);
+        if (updated != null) {
+            return ResponseEntity.ok(updated); // Trả về DTO (đối tượng JSON hợp lệ)
         }
-        return ResponseEntity.badRequest().body("Cập nhật thất bại. Vui lòng kiểm tra ID.");
+        return ResponseEntity.badRequest().body(Map.of("message", "Cập nhật thất bại"));
     }
 }

@@ -20,5 +20,5 @@ public interface RequestManagementService {
      * - PENDING -> APPROVED / REJECTED
      * - APPROVED -> RETURNED
      */
-    boolean updateRequestStatus(Long id, String status, String note);
+    ServiceRequestDTO updateRequestStatus(Long id, String status);
 }
