@@ -37,4 +37,14 @@ public class DeviceController {
         boolean isDeleted = inventoryService.softDeleteDevice(id);
         return ResponseEntity.ok(isDeleted);
     }
+
+    // API cập nhật thông tin thiết bị
+    @PutMapping("/{id}")
+    public ResponseEntity<DeviceResponseDTO> updateDevice(
+            @PathVariable Long id, 
+            @RequestBody DeviceCreateRequestDTO request) {
+        
+        DeviceResponseDTO updatedDevice = inventoryService.updateDevice(id, request);
+        return ResponseEntity.ok(updatedDevice);
+    }
 }

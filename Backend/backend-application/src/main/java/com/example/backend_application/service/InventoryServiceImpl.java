@@ -22,7 +22,7 @@ public class InventoryServiceImpl implements InventoryService {
     @Autowired
     private EntityManager entityManager;
 
-    // --- CODE CŨ CỦA BẠN (ĐÃ ĐỒNG BỘ VỚI DTO MỚI) ---
+    // Phương thức tạo thiết bị mới đã được sửa để tương thích với DTO mới và Entity Category
     @Override
     @Transactional
     public DeviceResponseDTO createDevice(DeviceCreateRequestDTO dto) {
@@ -44,7 +44,7 @@ public class InventoryServiceImpl implements InventoryService {
         return convertToDTO(savedDevice);
     }
 
-    // --- CODE MỚI BỔ SUNG ---
+    // --- PHẦN BỔ SUNG TÌM KIẾM 
     @Override
     public List<DeviceResponseDTO> searchDevices(String keyword) {
         List<DeviceModel> devices;
@@ -60,6 +60,7 @@ public class InventoryServiceImpl implements InventoryService {
                 .collect(Collectors.toList());
     }
 
+    // Phương thức xóa mềm: cập nhật status thành 'DELETED'
     @Override
     @Transactional
     public boolean softDeleteDevice(Long id) {
@@ -68,6 +69,35 @@ public class InventoryServiceImpl implements InventoryService {
             inventoryRepository.save(device);
             return true;
         }).orElse(false);
+    }
+
+    // --- PHẦN BỔ SUNG CẬP NHẬT THIẾT BỊ ---
+    @Override
+    @Transactional
+    public DeviceResponseDTO updateDevice(Long id, DeviceCreateRequestDTO dto) {
+        // Tìm thiết bị trong DB, nếu không có sẽ ném ra ngoại lệ
+        DeviceModel device = inventoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thiết bị với ID: " + id));
+
+        // Cập nhật các thông tin từ DTO vào Entity
+        device.setName(dto.getName());
+        device.setImage(dto.getImageUrl());
+        device.setStock(dto.getQuantity());
+        device.setDescription(dto.getDescription());
+        
+        // Cập nhật trạng thái dựa trên số lượng mới
+        if (dto.getQuantity() != null && dto.getQuantity() > 0) {
+            device.setStatus("AVAILABLE");
+        } else {
+            device.setStatus("UNAVAILABLE");
+        }
+
+        Category categoryProxy = entityManager.getReference(Category.class, dto.getCategoryId());
+        device.setCategory(categoryProxy);
+
+        DeviceModel updatedDevice = inventoryRepository.save(device);
+        
+        return convertToDTO(updatedDevice);
     }
 
     // Hàm chuyển đổi dùng chung
@@ -86,4 +116,6 @@ public class InventoryServiceImpl implements InventoryService {
         }
         return response;
     }
+
+    
 }

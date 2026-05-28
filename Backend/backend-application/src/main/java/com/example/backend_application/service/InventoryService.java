@@ -11,4 +11,6 @@ public interface InventoryService {
     // Bổ sung thêm
     List<DeviceResponseDTO> searchDevices(String keyword);
     boolean softDeleteDevice(Long id);
+
+    DeviceResponseDTO updateDevice(Long id, DeviceCreateRequestDTO dto);
 }
