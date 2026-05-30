@@ -3,11 +3,17 @@ package com.example.backend_application.service;
 import com.example.backend_application.dto.ServiceRequestDTO;
 import com.example.backend_application.entity.BorrowRequest;
 import com.example.backend_application.repository.BorrowRequestRepository;
+import com.example.backend_application.repository.InventoryRepository;
 import com.example.backend_application.view.BorrowRequestView;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
@@ -15,8 +21,14 @@ import java.util.Optional;
 @Service
 public class RequestManagementServiceImpl implements RequestManagementService {
 
+    @PersistenceContext
+    private EntityManager em;
+    
     @Autowired
     private BorrowRequestRepository borrowRequestRepository;
+
+    @Autowired
+    private InventoryRepository inventoryRepository;
 
     @Override
     public List<ServiceRequestDTO> getAllRequests() {
@@ -48,20 +60,29 @@ public class RequestManagementServiceImpl implements RequestManagementService {
     @Override
     @Transactional
     public ServiceRequestDTO updateRequestStatus(Long id, String status) {
-        // 1. Kiểm tra trạng thái hợp lệ
-        // Chỉ cho phép update nếu request tồn tại
         Optional<BorrowRequestView> requestOpt = borrowRequestRepository.findByIdRequest(id);
         if (requestOpt.isEmpty()) return null;
-
-        // 2. Thực hiện cập nhật
-        // Nếu status là RETURNED, hệ thống sẽ tự động set ngày hiện tại vào actualReturnDate qua câu query ở trên
-        int updatedRows = borrowRequestRepository.updateRequestDetails(id, status);
         
-        if (updatedRows > 0) {
-            System.out.println("Đã cập nhật ID " + id + " sang trạng thái " + status);
-            return getRequestById(id);
+        BorrowRequestView request = requestOpt.get();
+
+        if ("APPROVED".equals(status)) {
+            // Kiểm tra tồn kho trước khi cho mượn
+            Integer available = inventoryRepository.getAvailableQuantity(request.getDeviceId());
+            if (available == null || available < request.getQuantity()) {
+                status = "REJECTED"; 
+            } else {
+                inventoryRepository.decreaseQuantity(request.getDeviceId(), request.getQuantity());
+            }
+        } 
+        else if ("RETURNED".equals(status)) {
+            // Cộng tồn kho lại
+            inventoryRepository.increaseQuantity(request.getDeviceId(), request.getQuantity());
         }
-        return null;
+
+        // Cập nhật vào DB
+        borrowRequestRepository.updateRequestDetails(id, status);
+        
+        return getRequestById(id);
     }
 
     private ServiceRequestDTO mapViewToDTO(BorrowRequestView view) {

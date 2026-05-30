@@ -6,7 +6,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 
 @Entity
 @Table(name = "view_borrow_request_details") // Tên của View bạn đã tạo trong DB
@@ -18,6 +18,7 @@ public class BorrowRequestView {
     private Long studentId;
     private String studentName;
     private String email;
+    private Long deviceId;
     private String deviceName;
     private String status;
     private LocalDate borrowDate;

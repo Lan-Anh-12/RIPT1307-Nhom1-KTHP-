@@ -100,6 +100,8 @@ public class InventoryServiceImpl implements InventoryService {
         return convertToDTO(updatedDevice);
     }
 
+
+
     // Hàm chuyển đổi dùng chung
     private DeviceResponseDTO convertToDTO(DeviceModel device) {
         DeviceResponseDTO response = new DeviceResponseDTO();
