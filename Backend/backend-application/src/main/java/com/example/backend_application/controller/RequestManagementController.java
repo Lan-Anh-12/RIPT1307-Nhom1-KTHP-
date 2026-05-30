@@ -1,5 +1,6 @@
 package com.example.backend_application.controller;
 
+import com.example.backend_application.dto.BorrowCreateRequestDTO;
 import com.example.backend_application.dto.ServiceRequestDTO;
 import com.example.backend_application.service.RequestManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +47,24 @@ public class RequestManagementController {
         ServiceRequestDTO updated = requestManagementService.updateRequestStatus(id, status);
         
         if (updated != null) {
-            return ResponseEntity.ok(updated); // Trả về DTO (đối tượng JSON hợp lệ)
+            return ResponseEntity.ok(updated);
         }
         return ResponseEntity.badRequest().body(Map.of("message", "Cập nhật thất bại"));
+    }
+
+    /**
+     * API Gửi yêu cầu mượn thiết bị mới
+     */
+    @PostMapping("/create")
+    public ResponseEntity<?> createBorrowRequest(@RequestBody BorrowCreateRequestDTO requestDTO) {
+        try {
+            ServiceRequestDTO savedRequest = requestManagementService.createBorrowRequest(requestDTO);
+            if (savedRequest != null) {
+                return ResponseEntity.ok(savedRequest);
+            }
+            return ResponseEntity.badRequest().body(Map.of("message", "Không thể tạo yêu cầu, vui lòng kiểm tra lại thông tin."));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("message", "Lỗi hệ thống: " + e.getMessage()));
+        }
     }
 }

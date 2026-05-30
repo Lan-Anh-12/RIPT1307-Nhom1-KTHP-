@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Test API Create Request</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .form-group { margin-bottom: 10px; }
+        input, select, button { padding: 8px; margin-right: 5px; }
+    </style>
+</head>
+<body>
+    <h2>Test API: Gửi yêu cầu mượn thiết bị</h2>
+    
+    <div class="form-group">
+        <label>Ngày mượn:</label>
+        <input type="date" id="requestDate">
+        
+        <label>Ngày trả dự kiến:</label>
+        <input type="date" id="expectedReturnDate">
+    </div>
+
+    <div class="form-group">
+        <label>Chọn thiết bị:</label>
+        <select id="deviceItemId">
+            <option value="1">Laptop Dell Latitude 5440 i5</option>
+            <option value="2">Router Cisco ISR 4331</option>
+        </select>
+        
+        <label>Số lượng:</label>
+        <input type="number" id="quantity" placeholder="Số lượng" style="width: 80px;">
+        
+        <button onclick="sendRequest()">Gửi yêu cầu</button>
+    </div>
+
+    <pre id="response" style="background: #f4f4f4; padding: 10px; border: 1px solid #ccc;"></pre>
+
+    <script>
+        function sendRequest() {
+            const data = {
+                requestDate: document.getElementById('requestDate').value,
+                expectedReturnDate: document.getElementById('expectedReturnDate').value,
+                deviceItemId: parseInt(document.getElementById('deviceItemId').value),
+                quantity: parseInt(document.getElementById('quantity').value)
+            };
+
+            fetch('http://localhost:8080/api/requests/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Lỗi server: ' + response.status);
+                return response.json();
+            })
+            .then(result => {
+                document.getElementById('response').innerText = "Thành công:\n" + JSON.stringify(result, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('response').innerText = "Lỗi: " + error.message;
+            });
+        }
+    </script>
+</body>
+</html>
