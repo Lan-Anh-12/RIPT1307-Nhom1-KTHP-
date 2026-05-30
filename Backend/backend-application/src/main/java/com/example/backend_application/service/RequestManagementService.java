@@ -17,6 +17,13 @@ public interface RequestManagementService {
     List<ServiceRequestDTO> searchRequestsByName(String name);
 
     /**
+     * Tìm kiếm lịch sử mượn theo tên thiết bị hoặc mã yêu cầu (REQ-YYYY-ID)
+     * @param keyword từ khóa tìm kiếm
+     * @return danh sách yêu cầu khớp với từ khóa
+     */
+    List<ServiceRequestDTO> searchHistory(String keyword);
+
+    /**
      * Lấy chi tiết một yêu cầu cụ thể để đổ dữ liệu lên Popup
      */
     ServiceRequestDTO getRequestById(Long id);

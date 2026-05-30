@@ -32,6 +32,15 @@ public class RequestManagementController {
         return ResponseEntity.ok(requestManagementService.searchRequestsByName(name));
     }
 
+    // --- MỚI THÊM VÀO: API tìm kiếm lịch sử mượn theo từ khóa ---
+    @GetMapping("/search-history")
+    public ResponseEntity<List<ServiceRequestDTO>> searchHistory(
+            @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword
+    ) {
+        return ResponseEntity.ok(requestManagementService.searchHistory(keyword));
+    }
+    // --- KẾT THÚC PHẦN MỚI THÊM ---
+
     // Lấy chi tiết 1 yêu cầu (Dùng cho cả Popup Duyệt và Popup Ghi nhận trả)
     @GetMapping("/{id}")
     public ResponseEntity<ServiceRequestDTO> getRequestById(@PathVariable("id") Long id) {

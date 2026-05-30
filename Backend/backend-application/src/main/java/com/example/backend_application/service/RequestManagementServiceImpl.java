@@ -1,6 +1,5 @@
 package com.example.backend_application.service;
 
-
 import com.example.backend_application.dto.BorrowCreateRequestDTO;
 import com.example.backend_application.dto.ServiceRequestDTO;
 import com.example.backend_application.entity.BorrowRequest;
@@ -11,23 +10,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
 
-
 @Service
 public class RequestManagementServiceImpl implements RequestManagementService {
-
 
     @Autowired
     private BorrowRequestRepository borrowRequestRepository;
 
-
     @Autowired
     private BorrowRequestEntityRepository borrowRequestEntityRepository;
-
 
     @Override
     public List<ServiceRequestDTO> getAllRequests() {
@@ -36,17 +30,38 @@ public class RequestManagementServiceImpl implements RequestManagementService {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public List<ServiceRequestDTO> searchRequestsByName(String name) {
         List<BorrowRequestView> views = (name == null || name.trim().isEmpty())
                 ? borrowRequestRepository.findAll()
                 : borrowRequestRepository.findByStudentNameContaining(name);
 
-
         return views.stream().map(this::mapViewToDTO).collect(Collectors.toList());
     }
 
+    // --- MỚI THÊM VÀO: Tìm kiếm lịch sử theo tên thiết bị hoặc mã yêu cầu ---
+    @Override
+    public List<ServiceRequestDTO> searchHistory(String keyword) {
+        List<ServiceRequestDTO> allRequests = getAllRequests();
+        
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return allRequests;
+        }
+
+        String lowerKeyword = keyword.toLowerCase();
+
+        return allRequests.stream()
+            .filter(dto -> {
+                // Tạo chuỗi mã yêu cầu giống định dạng hiển thị: REQ-2025-XXX
+                String requestCode = "req-2025-" + String.format("%03d", dto.getIdRequest());
+                
+                // So sánh theo tên thiết bị HOẶC mã yêu cầu
+                return dto.getDevice().toLowerCase().contains(lowerKeyword) || 
+                       requestCode.contains(lowerKeyword);
+            })
+            .collect(Collectors.toList());
+    }
+    // --- KẾT THÚC PHẦN MỚI THÊM ---
 
     @Override
     public ServiceRequestDTO getRequestById(Long id) {
@@ -55,16 +70,14 @@ public class RequestManagementServiceImpl implements RequestManagementService {
                 .orElse(null);
     }
 
-
     @Override
     @Transactional
     public ServiceRequestDTO updateRequestStatus(Long id, String status) {
         Optional<BorrowRequestView> requestOpt = borrowRequestRepository.findByIdRequest(id);
         if (requestOpt.isEmpty()) return null;
 
-
         int updatedRows = borrowRequestRepository.updateRequestDetails(id, status);
-       
+        
         if (updatedRows > 0) {
             System.out.println("Đã cập nhật ID " + id + " sang trạng thái " + status);
             return getRequestById(id);
@@ -72,30 +85,27 @@ public class RequestManagementServiceImpl implements RequestManagementService {
         return null;
     }
 
-
     @Override
     @Transactional
     public ServiceRequestDTO createBorrowRequest(BorrowCreateRequestDTO requestDTO) {
         // 1. Tạo mới Entity từ DTO
         BorrowRequest entity = new BorrowRequest();
-       
-        // SỬA LỖI: Dùng setRequestDate khớp với thuộc tính requestDate trong BorrowRequest
+        
         entity.setRequestDate(requestDTO.getRequestDate());
         entity.setExpectedReturnDate(requestDTO.getExpectedReturnDate());
         entity.setQuantity(requestDTO.getQuantity());
         entity.setStatus("PENDING");
-       
+        
         // Gán deviceItemId từ DTO sang Entity
         entity.setDeviceItemId(requestDTO.getDeviceItemId());
 
-
         // 2. Lưu vào database thông qua Repository cho Entity
+        // LƯU Ý: Nếu sau này làm chức năng đăng nhập, hãy thêm logic lấy User tại đây
         BorrowRequest savedEntity = borrowRequestEntityRepository.save(entity);
-       
+        
         // 3. Trả về thông tin yêu cầu dưới dạng DTO
         return getRequestById(savedEntity.getId());
     }
-
 
     private ServiceRequestDTO mapViewToDTO(BorrowRequestView view) {
         ServiceRequestDTO dto = new ServiceRequestDTO();
