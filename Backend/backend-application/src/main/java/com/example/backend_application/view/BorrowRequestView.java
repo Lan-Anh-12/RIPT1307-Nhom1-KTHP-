@@ -20,7 +20,7 @@ public class BorrowRequestView {
     private String email;
     private String deviceName;
     private String status;
-    private LocalDateTime createdAt;
+    private LocalDate borrowDate;
     private LocalDate expectedReturnDate;
     private LocalDate actualReturnDate;
     private Integer quantity;

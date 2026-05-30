@@ -2,7 +2,7 @@ package com.example.backend_application.dto;
 
 import lombok.Data;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 
 @Data
 public class ServiceRequestDTO {
@@ -11,7 +11,7 @@ public class ServiceRequestDTO {
     private String studentName;   
     private String device;  
     private Integer quantity;        
-    private LocalDateTime createdAt;
+    private LocalDate requestDate;
     private LocalDate actualReturnDate ;
     private LocalDate expectedReturnDate;
     private String status;

@@ -72,7 +72,7 @@ public class RequestManagementServiceImpl implements RequestManagementService {
         dto.setDevice(view.getDeviceName());
         dto.setQuantity(view.getQuantity());
         dto.setStatus(view.getStatus());
-        dto.setCreatedAt(view.getCreatedAt());
+        dto.setRequestDate(view.getBorrowDate());
         dto.setExpectedReturnDate(view.getExpectedReturnDate() );
         dto.setActualReturnDate(view.getActualReturnDate());
         return dto;

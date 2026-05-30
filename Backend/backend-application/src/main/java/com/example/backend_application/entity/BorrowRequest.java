@@ -22,8 +22,8 @@ public class BorrowRequest {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(name = "borrow_date")
+    private LocalDate requestDate;
 
     @Column(name = "expected_return_date")
     private LocalDate expectedReturnDate;
