@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Test API Thông báo</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .notification-card { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .unread { background-color: #f0f8ff; }
+        .btn { padding: 5px 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h2>Danh sách thông báo</h2>
+    <div id="notification-list">Đang tải...</div>
+
+    <script>
+        // Thay userId này bằng ID thực tế của User đang đăng nhập
+        const userId = 1; 
+
+        async function fetchNotifications() {
+            try {
+                const response = await fetch(`http://localhost:8080/api/notifications/my-notifications?userId=${userId}`);
+                const data = await response.json();
+                
+                const listDiv = document.getElementById('notification-list');
+                listDiv.innerHTML = '';
+
+                data.forEach(n => {
+                    const div = document.createElement('div');
+                    div.className = `notification-card ${n.isRead ? '' : 'unread'}`;
+                    div.innerHTML = `
+                        <h3>${n.title}</h3>
+                        <p>${n.content}</p>
+                        ${!n.isRead ? `<button class="btn" onclick="markAsRead(${n.id})">Đánh dấu đã đọc</button>` : '<span>✓ Đã đọc</span>'}
+                    `;
+                    listDiv.appendChild(div);
+                });
+            } catch (error) {
+                document.getElementById('notification-list').innerText = "Lỗi khi gọi API: " + error;
+            }
+        }
+
+        async function markAsRead(id) {
+            await fetch(`http://localhost:8080/api/notifications/${id}/read`, { method: 'PUT' });
+            fetchNotifications(); // Tải lại danh sách sau khi đọc
+        }
+
+        fetchNotifications();
+    </script>
+</body>
+</html>

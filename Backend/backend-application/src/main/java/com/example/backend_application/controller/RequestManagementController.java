@@ -1,5 +1,6 @@
 package com.example.backend_application.controller;
 
+import com.example.backend_application.dto.BorrowCreateRequestDTO;
 import com.example.backend_application.dto.ServiceRequestDTO;
 import com.example.backend_application.service.RequestManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,15 @@ public class RequestManagementController {
         return ResponseEntity.ok(requestManagementService.searchRequestsByName(name));
     }
 
+    // --- MỚI THÊM VÀO: API tìm kiếm lịch sử mượn theo từ khóa ---
+    @GetMapping("/search-history")
+    public ResponseEntity<List<ServiceRequestDTO>> searchHistory(
+            @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword
+    ) {
+        return ResponseEntity.ok(requestManagementService.searchHistory(keyword));
+    }
+    // --- KẾT THÚC PHẦN MỚI THÊM ---
+
     // Lấy chi tiết 1 yêu cầu (Dùng cho cả Popup Duyệt và Popup Ghi nhận trả)
     @GetMapping("/{id}")
     public ResponseEntity<ServiceRequestDTO> getRequestById(@PathVariable("id") Long id) {
@@ -46,8 +56,30 @@ public class RequestManagementController {
         ServiceRequestDTO updated = requestManagementService.updateRequestStatus(id, status);
         
         if (updated != null) {
-            return ResponseEntity.ok(updated); // Trả về DTO (đối tượng JSON hợp lệ)
+            return ResponseEntity.ok(updated);
         }
         return ResponseEntity.badRequest().body(Map.of("message", "Cập nhật thất bại"));
+    }
+
+    /**
+     * API Gửi yêu cầu mượn thiết bị mới
+     */
+    @PostMapping("/create")
+    public ResponseEntity<?> createBorrowRequest(@RequestBody BorrowCreateRequestDTO requestDTO) {
+        try {
+            // Gọi service trả về boolean
+            boolean isCreated = requestManagementService.createBorrowRequest(requestDTO);
+            
+            if (isCreated) {
+                // Nếu thành công, trả về thông báo hoặc object thành công
+                return ResponseEntity.ok(Map.of("message", "Tạo yêu cầu thành công!"));
+            } else {
+                // Nếu service trả về false (do lỗi database hoặc validation)
+                return ResponseEntity.badRequest().body(Map.of("message", "Không thể tạo yêu cầu, vui lòng kiểm tra lại thông tin."));
+            }
+        } catch (Exception e) {
+            // Bắt mọi lỗi runtime khác
+            return ResponseEntity.internalServerError().body(Map.of("message", "Lỗi hệ thống: " + e.getMessage()));
+        }
     }
 }

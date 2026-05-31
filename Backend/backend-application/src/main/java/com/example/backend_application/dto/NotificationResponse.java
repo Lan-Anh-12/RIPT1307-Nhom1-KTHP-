@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 public class NotificationResponse {
     private Long id;
-    private Long idStudent;
+    private Long userId;
     private String title;
     private String content; // "Yêu cầu mượn thiết bị"+ tên thiết bị + "của bạn đã được chấp nhận"
     private Boolean isRead; // "Yêu cầu mượn thiết bị"+ tên thiết bị + "của bạn đã bị từ chối"

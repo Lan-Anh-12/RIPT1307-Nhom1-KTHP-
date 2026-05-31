@@ -28,4 +28,7 @@ public interface InventoryRepository extends JpaRepository<DeviceModel, Long> {
     @Query("UPDATE DeviceModel d SET d.stock = d.stock + :quantity WHERE d.id = :id")
     void increaseQuantity(@Param("id") Long id, @Param("quantity") Integer quantity);
 
+    @Query(value = "SELECT name FROM device_model WHERE id = :id", nativeQuery = true)
+    String findDeviceNameById(@Param("id") Long id);
+
 }
