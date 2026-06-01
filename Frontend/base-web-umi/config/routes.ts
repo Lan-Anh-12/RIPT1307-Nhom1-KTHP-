@@ -20,4 +20,16 @@
     component: './Admin/DeviceOrder/form',
     hideInMenu: true,
   },
+  {
+    path: '/admin/device-inventory',
+    name: 'Quản lý kho thiết bị',
+    icon: 'database', // Icon dạng hộp lưu trữ/cơ sở dữ liệu cực hợp với "Kho"
+    component: './Admin/DeviceInventory', // Chỉ đúng vào thư mục pages/Admin/DeviceInventory
+  },
+  {
+    path: '/admin/dashboard',
+    name: 'Thống kê',
+    icon: 'dashboard', // Hiển thị icon đồng hồ đo tốc độ/báo cáo trực quan
+    component: './Admin/Dashboard', // Ăn khớp chính xác với src/pages/Admin/Dashboard/index.tsx
+  },
 ];

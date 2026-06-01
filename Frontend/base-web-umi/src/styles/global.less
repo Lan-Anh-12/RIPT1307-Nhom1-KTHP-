@@ -567,42 +567,67 @@ canvas {
       fill: #000000 !important;
     }
   }
+// ==========================================================================
+// 1. CẤU HÌNH MENU SIDEBAR (HOVER & SELECTED)
+// ==========================================================================
 
-  /* 2. Trạng thái Hover (Di chuột vào): Giữ màu đen và thêm nền xám nhạt */
-  .ant-menu-item:hover, 
-  .ant-menu-submenu-title:hover,
-  .ant-menu-item-active {
-    background-color: #f5f5f5 !important; /* Nền xám nhạt */
-    
-    span, a, .anticon, svg, path {
-      color: #000000 !important;
-    }
+/* Trạng thái Hover (Di chuột vào): Giữ màu đen và thêm nền xám nhạt */
+.ant-menu-item:hover, 
+.ant-menu-submenu-title:hover,
+.ant-menu-item-active {
+  background-color: #f5f5f5 !important; /* Nền xám nhạt */
+  
+  span, a, .anticon, svg, path {
+    color: #000000 !important;
+  }
+}
+
+/* Trạng thái Selected (Mục đang được chọn): Chữ màu đen đậm và nền xám rõ hơn */
+li.ant-menu-item-selected {
+  background-color: #e6e6e6 !important; /* Đổi màu nền cũ thành xám */
+  
+  span, a, .ant-menu-title-content, .ant-pro-menu-item-title {
+    color: #000000 !important;
+    font-weight: 600 !important; /* Làm đậm chữ */
   }
 
-  /* 3. Trạng thái Selected (Mục đang được chọn): Chữ màu đen đậm và nền xám rõ hơn */
-  li.ant-menu-item-selected {
-    background-color: #e6e6e6 !important; /* Đổi màu nền cam/hồng/xanh cũ thành xám */
-    
-    span, a, .ant-menu-title-content, .ant-pro-menu-item-title {
-      color: #000000 !important;
-      font-weight: 600 !important; /* Làm đậm chữ */
-    }
-
-    .anticon, svg, path {
-      color: #000000 !important;
-      fill: #000000 !important;
-    }
+  .anticon, svg, path {
+    color: #000000 !important;
+    fill: #000000 !important;
   }
-  .customSearchBox {
-  // Bo góc mượt ô nhập liệu (bên trái)
-  .ant-input-search .ant-input {
-    border-top-left-radius: 8px !important;
-    border-bottom-left-radius: 8px !important;
+}
+
+
+// ==========================================================================
+// 2. ÉP BO GÓC TOÀN CỤC CHO Ô INPUT & SELECT (SỬA LỖI KHÔNG ĐỔI)
+// ==========================================================================
+
+body {
+  // Bo góc toàn diện cho tất cả các loại ô Input (Bao gồm cả Input lồng Icon Search)
+  .ant-input, 
+  .ant-input-affix-wrapper,
+  .ant-input-affix-wrapper-focused {
+    border-radius: 8px !important;
   }
 
-  // Bo góc thanh Select phân loại trạng thái
+  // Bo góc chuẩn xác cho ô Select (Thanh chọn Trạng thái / Danh mục)
+  .ant-select,
   .ant-select-selector {
-    border-top-left-radius: 8px !important;
-    border-bottom-left-radius: 8px !important;  }
-}
-}
+    border-radius: 8px !important;
+  }
+
+  // Bo góc cho cả hộp menu dropdown khi bấm xổ ô Select xuống
+  .ant-select-dropdown {
+    border-radius: 8px !important;
+  }
+  
+  // Bo góc cho các ô số chuyển trang của Table (Pagination)
+  .ant-pagination-item, 
+  .ant-pagination-prev, 
+  .ant-pagination-next {
+    border-radius: 8px !important;
+    a, button {
+      border-radius: 8px !important;
+    }
+  }
+}}
