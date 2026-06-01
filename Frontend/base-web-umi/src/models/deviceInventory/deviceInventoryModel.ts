@@ -29,13 +29,12 @@ export default function useDeviceInventoryModel() {
       rawFile = fileObj.fileList[0].originFileObj || fileObj.fileList[0];
     }
 
-    // Nếu lục lọi mọi ngóc ngách mà vẫn không tìm thấy file thô thì dừng lại
     if (!rawFile) {
       console.error('Không tìm thấy file thô (originFileObj)!');
       return '';
     }
 
-    // 3. Tiến hành đóng gói để ship lên Cloudinary
+    // 3. Tiến hành đóng gói để đẩy lên Cloudinary
     const formData = new FormData();
     formData.append('file', rawFile);
     formData.append('upload_preset', UPLOAD_PRESET);
@@ -60,7 +59,6 @@ export default function useDeviceInventoryModel() {
     }
   };
 
-  /** 🔄 Hàm lấy dữ liệu đổ vào Bảng kết hợp BỘ LỌC LOCAL NGHIÊM NGẶT */
   const fetchDevices = useCallback(async (filters?: { keyword?: string; category?: string }) => {
     setLoading(true);
     try {
