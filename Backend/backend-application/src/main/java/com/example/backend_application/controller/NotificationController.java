@@ -17,6 +17,13 @@ public class NotificationController {
     @Autowired
     private NotificationService notificationService;
 
+    // API lấy thông báo cho một userId bất kỳ (ví dụ: dùng cho Admin)
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<NotificationResponse>> getNotificationsByUserId(@PathVariable("userId") Long userId) {
+        List<NotificationResponse> notifications = notificationService.getNotificationsByUserId(userId);
+        return ResponseEntity.ok(notifications);
+    }
+
     @GetMapping("/my-notifications")
     public ResponseEntity<List<NotificationResponse>> getMyNotifications(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -38,4 +45,6 @@ public class NotificationController {
                 ? ResponseEntity.ok("Đã cập nhật trạng thái thông báo") 
                 : ResponseEntity.notFound().build();
     }
+
+    
 }

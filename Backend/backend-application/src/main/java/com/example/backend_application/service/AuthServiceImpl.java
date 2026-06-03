@@ -3,7 +3,7 @@ package com.example.backend_application.service;
 import com.example.backend_application.dto.LoginRequest;
 import com.example.backend_application.entity.User;
 import com.example.backend_application.repository.UserRepository;
-import com.example.backend_application.service.AuthService;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
