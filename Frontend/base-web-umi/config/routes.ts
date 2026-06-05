@@ -1,4 +1,4 @@
-﻿import { icons } from 'antd/lib/image/PreviewGroup';
+// Frontend/base-web-umi/config/routes.ts
 
 export default [
 	{
@@ -19,30 +19,29 @@ export default [
 	},
 
 	///////////////////////////////////
-	// DEFAULT MENU
-
+	// MENU CHO TRANG USER (CỦA BẠN)
 	{
-		path: '/danh-sach-thiet-bi',
+		path: '/student/danh-sach-thiet-bi',
 		name: 'Danh sách thiết bị',
-		component: './DanhSachThietBi',
+		component: './Student/DanhSachThietBi',
 		icon: 'BankOutlined',
 	},
 	{
-		path: '/yeu-cau-muon',
+		path: '/student/yeu-cau-muon',
 		name: 'Yêu cầu mượn',
-		component: './YeuCauMuon',
+		component: './Student/YeuCauMuon',
 		icon: 'FileTextOutlined',
 	},
 	{
-		path: '/lich-su-muon',
+		path: '/student/lich-su-muon',
 		name: 'Lịch sử mượn',
-		component: './LichSuMuon',
+		component: './Student/LichSuMuon',
 		icon: 'HistoryOutlined',
 	},
 	{
-		path: '/thong-bao',
+		path: '/student/thong-bao',
 		name: 'Thông báo',
-		component: './Tbao',
+		component: './Student/Tbao',
 		icon: 'BellOutlined',
 	},
 	{
@@ -51,7 +50,24 @@ export default [
 		component: './TienIch/GioiThieu',
 		hideInMenu: true,
 	},
-	
+
+	///////////////////////////////////
+	// MENU CHO TRANG ADMIN (CỦA NGỌC)
+	{
+		path: '/admin/device-order',
+		name: 'Quản lý yêu cầu',
+		icon: 'table',
+		component: './Admin/DeviceOrder/index',
+	},
+	{
+		path: '/admin/device-order/form',
+		name: 'Xử lý yêu cầu',
+		component: './Admin/DeviceOrder/form',
+		hideInMenu: true,
+	},
+
+	///////////////////////////////////
+	// ĐỊNH TUYẾN THÔNG BÁO NGẦM & HỆ THỐNG
 	{
 		path: '/notification',
 		routes: [
@@ -76,6 +92,7 @@ export default [
 	},
 	{
 		path: '/',
+		redirect: '/danh-sach-thiet-bi', // Chỉnh lại mặc định vào trang danh sách của user (hoặc /admin tùy bạn muốn)
 	},
 	{
 		path: '/403',

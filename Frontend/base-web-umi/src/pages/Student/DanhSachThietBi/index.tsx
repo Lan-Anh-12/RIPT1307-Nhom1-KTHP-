@@ -1,12 +1,12 @@
 import React from 'react';
-import { Input, Button, Card, Row, Col, Badge, Space, Typography, Spin, Modal } from 'antd';
-import { SearchOutlined, InfoCircleOutlined, SolutionOutlined } from '@ant-design/icons';
-// Gọi "nhân viên xử lý logic" từ file bên cạnh vào
-import { useDeviceFilter } from '../../services/DanhSachThietBi/useDeviceFilter';
-import DeviceDetailModal from './DeviceDetailModal'; // <--- Thêm dòng này
-import { history } from 'umi'; // Thư viện điều hướng chuyển trang của Ant Design Pro
+import { Input, Button, Card, Row, Col, Badge, Space, Typography, Spin } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
+import { useDeviceFilter } from '../../../services/DanhSachThietBi/useDeviceFilter';
+import DeviceDetailModal from './DeviceDetailModal';
+import type { DeviceType } from '../../../services/DanhSachThietBi/typing';
 
 const { Title, Paragraph, Text } = Typography;
+
 const categories = [
 	'Tất cả',
 	'Máy chiếu',
@@ -20,8 +20,7 @@ const categories = [
 	'Mạng',
 ];
 
-const DanhSachThietBi = () => {
-	// 🌟 ĐÃ SỬA: Bóc tách thêm các biến quản lý Popup từ Hook vừa sửa xong
+const DanhSachThietBi: React.FC = () => {
 	const {
 		selectedCategory,
 		setSelectedCategory,
@@ -91,11 +90,10 @@ const DanhSachThietBi = () => {
 			) : (
 				<Row gutter={[24, 24]}>
 					{devices.length > 0 ? (
-						devices.map((device: any) => (
+						devices.map((device: DeviceType) => (
 							<Col xs={24} sm={12} md={8} key={device.id}>
 								<Card
 									hoverable
-									// 🌟 ĐÃ THÊM: Click vào bất kỳ vùng nào trên Card sẽ mở Popup chi tiết sản phẩm
 									onClick={() => openDetailModal(device)}
 									style={{
 										borderRadius: '16px',
@@ -117,7 +115,7 @@ const DanhSachThietBi = () => {
 										>
 											<img
 												alt={device.name}
-												src={device.image}
+												src={device.image_url} // 🌟 ĐÃ SỬA: Khớp chuẩn trường image_url
 												style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
 											/>
 										</div>
@@ -164,8 +162,8 @@ const DanhSachThietBi = () => {
 											</Text>
 										</Text>
 										<Text type='secondary' style={{ fontSize: '13px' }}>
-											Tồn kho:{' '}
-											<Text strong style={{ color: device.stock.startsWith('0') ? '#ff4d4f' : '#1890ff' }}>
+											Tồn kho: {/* 🌟 ĐÃ SỬA: Đối chiếu dạng số, kiểm tra nếu kho = 0 thì báo đỏ */}
+											<Text strong style={{ color: device.stock === 0 ? '#ff4d4f' : '#1890ff' }}>
 												{device.stock}
 											</Text>
 										</Text>
@@ -183,9 +181,7 @@ const DanhSachThietBi = () => {
 				</Row>
 			)}
 
-			{/* ======================================================= */}
-			{/* 🌟 ĐÃ THÊM: POPUP MODAL HIỂN THỊ CHI TIẾT THEO SƠ ĐỒ */}
-			{/* ======================================================= */}
+			{/* POPUP MODAL HIỂN THỊ CHI TIẾT THEO SƠ ĐỒ ĐÃ ĐỒNG BỘ TYPE */}
 			<DeviceDetailModal isOpen={isModalOpen} device={selectedDevice} onClose={closeDetailModal} />
 		</div>
 	);

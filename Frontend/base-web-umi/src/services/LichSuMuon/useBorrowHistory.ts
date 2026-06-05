@@ -1,9 +1,11 @@
-// src/pages/LichSuMuon/useBorrowHistory.ts
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { message, Modal } from 'antd';
+import { getBorrowHistoryList, cancelBorrowRequest } from './api';
 
-// Dữ liệu giả lập khớp 100% với ảnh mẫu của bạn
-const mockHistoryData = [
+// Bật true để test giao diện bằng data mẫu, bật false để gọi API thật từ Database
+const IS_MOCK = true;
+
+const mockHistoryData: BorrowHistorySpace.HistoryItem[] = [
 	{
 		id: '1',
 		key: 'REQ-2025-001',
@@ -47,12 +49,37 @@ const mockHistoryData = [
 ];
 
 export const useBorrowHistory = () => {
-	const [data, setData] = useState(mockHistoryData);
-	const [searchText, setSearchText] = useState('');
-	const [statusFilter, setStatusFilter] = useState('Tất cả');
+	const [data, setData] = useState<BorrowHistorySpace.HistoryItem[]>([]);
+	const [loading, setLoading] = useState<boolean>(false);
+	const [searchText, setSearchText] = useState<string>('');
+	const [statusFilter, setStatusFilter] = useState<string>('Tất cả');
 
-	// 1. Tính toán số lượng cho các thẻ thống kê (Card stats) ở trên cùng
-	const stats = useMemo(() => {
+	// Hàm gọi dữ liệu động
+	const fetchHistory = async () => {
+		setLoading(true);
+		try {
+			if (IS_MOCK) {
+				await new Promise((resolve) => setTimeout(resolve, 500));
+				setData(mockHistoryData);
+			} else {
+				const response = await getBorrowHistoryList();
+				if (response && response.data) {
+					setData(response.data);
+				}
+			}
+		} catch (error) {
+			message.error('Không thể tải lịch sử mượn từ hệ thống!');
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		fetchHistory();
+	}, []);
+
+	// 1. Tính toán số lượng cho các thẻ thống kê tự động
+	const stats = useMemo<BorrowHistorySpace.HistoryStats>(() => {
 		return {
 			pending: data.filter((item) => item.status === 'Chờ duyệt').length,
 			approved: data.filter((item) => item.status === 'Đã duyệt').length,
@@ -62,7 +89,7 @@ export const useBorrowHistory = () => {
 		};
 	}, [data]);
 
-	// 2. Logic tìm kiếm văn bản và bộ lọc dropdown trạng thái
+	// 2. Bộ lọc tìm kiếm và trạng thái đơn mượn
 	const filteredData = useMemo(() => {
 		return data.filter((item) => {
 			const matchesSearch =
@@ -75,8 +102,8 @@ export const useBorrowHistory = () => {
 		});
 	}, [data, searchText, statusFilter]);
 
-	// 3. Logic xử lý khi người dùng nhấn nút Hủy yêu cầu (chỉ dùng cho đơn Chờ duyệt)
-	const handleCancelRequest = (record: any) => {
+	// 3. Logic xử lý khi người dùng nhấn hủy yêu cầu đơn mượn
+	const handleCancelRequest = (record: BorrowHistorySpace.HistoryItem) => {
 		Modal.confirm({
 			title: 'Xác nhận hủy yêu cầu',
 			content: `Bạn có chắc chắn muốn hủy yêu cầu mượn thiết bị "${record.deviceName}" (${record.key}) không?`,
@@ -86,9 +113,13 @@ export const useBorrowHistory = () => {
 			centered: true,
 			onOk: async () => {
 				try {
-					// Khi chạy thật, bạn sẽ gọi axios/fetch API xóa ở đây
-					// Hiện tại ta lọc bỏ record này khỏi danh sách hiển thị để giả lập xóa thành công
-					setData((prevData) => prevData.filter((item) => item.id !== record.id));
+					if (IS_MOCK) {
+						await new Promise((resolve) => setTimeout(resolve, 500));
+						setData((prevData) => prevData.filter((item) => item.id !== record.id));
+					} else {
+						await cancelBorrowRequest(record.id);
+						await fetchHistory(); // Tải lại danh sách mới nhất từ DB sau khi xóa thành công
+					}
 					message.success(`Đã hủy thành công yêu cầu ${record.key}`);
 				} catch (error) {
 					message.error('Không thể hủy yêu cầu, vui lòng thử lại sau.');
@@ -104,6 +135,7 @@ export const useBorrowHistory = () => {
 		setStatusFilter,
 		stats,
 		filteredData,
+		loading,
 		handleCancelRequest,
 	};
 };

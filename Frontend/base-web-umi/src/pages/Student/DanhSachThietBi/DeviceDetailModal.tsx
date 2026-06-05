@@ -3,13 +3,15 @@ import React from 'react';
 import { Modal, Button, Typography, Space, Badge } from 'antd';
 import { InfoCircleOutlined, SolutionOutlined } from '@ant-design/icons';
 import { history } from 'umi';
+// 🌟 ĐÃ SỬA: Import kiểu dữ liệu chuẩn từ file định nghĩa chung của thầy
+import type { DeviceType } from '../../../services/DanhSachThietBi/typing';
 
 const { Title, Paragraph, Text } = Typography;
 
 // Định nghĩa các "đầu vào" (Props) mà Component này cần trang chính truyền cho
 interface DeviceDetailModalProps {
 	isOpen: boolean; // Trạng thái đóng/mở popup
-	device: any; // Dữ liệu của thiết bị đang chọn
+	device: DeviceType | null; // 🌟 ĐÃ SỬA: Thay 'any' bằng kiểu DeviceType chuẩn (hoặc null nếu chưa chọn)
 	onClose: () => void; // Hàm xử lý khi bấm đóng popup
 }
 
@@ -23,7 +25,7 @@ const DeviceDetailModal: React.FC<DeviceDetailModalProps> = ({ isOpen, device, o
 				<Space>
 					<InfoCircleOutlined style={{ color: '#1890ff' }} />
 					<Text strong style={{ fontSize: '16px' }}>
-						Chi tiết thiết bị chuyên sâu
+						Chi tiết thiết bị
 					</Text>
 				</Space>
 			}
@@ -46,7 +48,7 @@ const DeviceDetailModal: React.FC<DeviceDetailModalProps> = ({ isOpen, device, o
 					}}
 				>
 					<img
-						src={device.image}
+						src={device.image_url} // 🌟 ĐÃ SỬA: Đổi từ device.image thành device.image_url cho khớp Database
 						alt={device.name}
 						style={{ maxHeight: '200px', maxWidth: '100%', objectFit: 'contain' }}
 					/>
@@ -69,7 +71,9 @@ const DeviceDetailModal: React.FC<DeviceDetailModalProps> = ({ isOpen, device, o
 					<Text strong style={{ display: 'block', marginBottom: '4px' }}>
 						Mô tả sản phẩm:
 					</Text>
-					<Paragraph style={{ margin: 0, color: '#595959' }}>{device.description}</Paragraph>
+					<Paragraph style={{ margin: 0, color: '#595959' }}>
+						{device.description || 'Chưa có mô tả chi tiết cho thiết bị này.'}
+					</Paragraph>
 				</div>
 
 				{/* Nút mượn thiết bị */}
@@ -87,7 +91,7 @@ const DeviceDetailModal: React.FC<DeviceDetailModalProps> = ({ isOpen, device, o
 					}}
 					onClick={() => {
 						onClose(); // Đóng popup
-						history.push(`/yeu-cau-muon?deviceId=${device.id}`); // Điều hướng
+						history.push(`/yeu-cau-muon?deviceId=${device.id}`); // Điều hướng sang trang đăng ký mượn
 					}}
 				>
 					Đăng ký mượn thiết bị này

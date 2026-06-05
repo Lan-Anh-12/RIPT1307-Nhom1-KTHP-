@@ -1,65 +1,87 @@
-// src/pages/YeuCauMuon/useBorrowForm.ts
 import { useEffect, useState } from 'react';
 import { Form, message } from 'antd';
-import { useLocation } from 'umi'; // Hoặc react-router-dom tùy phiên bản dự án của bạn
+import { useLocation } from 'umi';
+import { getActiveDevices, createBorrowRequest } from './api'; // Cùng cấp thư mục service
 
-// Giả lập danh sách thiết bị để đổ vào ô Select dropdown
-const mockDeviceOptions = [
-	{ id: 'DEV-001', name: 'Máy chiếu Epson EB-X51' },
-	{ id: 'DEV-002', name: 'Máy tính xách tay Dell Latitude 5520' },
-	{ id: 'DEV-003', name: 'Micro không dây Shure BLX24' },
+const IS_MOCK = true;
+
+const mockDeviceDatabase: BorrowRequestSpace.DeviceModel[] = [
+	{ id: 'DEV-001', name: 'Máy chiếu Epson EB-X51', stock: 5 },
+	{ id: 'DEV-002', name: 'Máy tính xách tay Dell Latitude 5520', stock: 8 },
+	{ id: 'DEV-003', name: 'Micro không dây Shure BLX24', stock: 0 },
 ];
 
 export const useBorrowForm = () => {
-	const [form] = Form.useForm();
+	const [form] = Form.useForm<BorrowRequestSpace.FormValues>();
 	const location = useLocation();
-	const [submitting, setSubmitting] = useState(false);
+	const [submitting, setSubmitting] = useState<boolean>(false);
+	const [devices, setDevices] = useState<BorrowRequestSpace.DeviceModel[]>([]);
 
-	// 🌟 TỰ ĐỘNG LẤY DEVICEID TỪ URL KHI TRANG ĐƯỢC LOAD
+	useEffect(() => {
+		const fetchDevices = async () => {
+			try {
+				if (IS_MOCK) {
+					await new Promise((resolve) => setTimeout(resolve, 500));
+					setDevices(mockDeviceDatabase);
+				} else {
+					const response = await getActiveDevices();
+					if (response && response.data) {
+						setDevices(response.data);
+					}
+				}
+			} catch (error) {
+				message.error('Không thể tải danh sách thiết bị từ hệ thống!');
+			}
+		};
+		fetchDevices();
+	}, []);
+
 	useEffect(() => {
 		const searchParams = new URLSearchParams(location.search);
 		const deviceIdFromUrl = searchParams.get('deviceId');
 
 		if (deviceIdFromUrl) {
-			// Nếu trên URL có ?deviceId=DEV-001, tự động set giá trị vào Form luôn
 			form.setFieldsValue({ deviceId: deviceIdFromUrl });
 		}
 	}, [location.search, form]);
 
-	// Hàm xử lý tăng/giảm số lượng bằng nút + / -
 	const changeQuantity = (amount: number) => {
 		const currentQty = form.getFieldValue('quantity') || 1;
-		const newQty = Math.max(1, currentQty + amount); // Không cho giảm xuống dưới 1
+		const newQty = Math.max(1, currentQty + amount);
 		form.setFieldsValue({ quantity: newQty });
 	};
 
-	// Hàm xử lý khi bấm nút "Gửi yêu cầu"
-	const handleSubmit = async (values: any) => {
+	const handleSubmit = async (values: BorrowRequestSpace.FormValues) => {
 		setSubmitting(true);
 		try {
-			// Chuẩn hóa định dạng ngày tháng trước khi gửi lên Server
-			const submitData = {
-				...values,
-				startDate: values.startDate?.format('YYYY-MM-DD'),
-				endDate: values.endDate?.format('YYYY-MM-DD'),
+			const currentUserId = Number(localStorage.getItem('userId')) || 1;
+
+			const payload: BorrowRequestSpace.CreateBorrowPayload = {
+				device_model_id: values.deviceId,
+				borrow_date: values.startDate?.format('YYYY-MM-DD'),
+				expected_return_date: values.endDate?.format('YYYY-MM-DD'),
+				quantity: values.quantity,
+				app_user_id: currentUserId,
+				status: 'PENDING',
 			};
 
-			console.log('Dữ liệu gửi lên server:', submitData);
-
-			// Giả lập gọi API đợi 1 giây
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			if (IS_MOCK) {
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+				console.log('Đã Mock gửi đơn mượn với dữ liệu:', payload);
+			} else {
+				await createBorrowRequest(payload);
+			}
 
 			message.success('Gửi yêu cầu mượn thiết bị thành công!');
-			form.resetFields(); // Reset sạch form sau khi gửi thành công
-			form.setFieldsValue({ quantity: 1 }); // Đặt lại số lượng mặc định là 1
+			form.resetFields();
+			form.setFieldsValue({ quantity: 1 });
 		} catch (error) {
-			message.error('Có lỗi xảy ra, vui lòng thử lại!');
+			message.error('Gửi yêu cầu thất bại. Vui lòng thử lại!');
 		} finally {
 			setSubmitting(false);
 		}
 	};
 
-	// Hàm xử lý khi bấm nút "Hủy"
 	const handleCancel = () => {
 		form.resetFields();
 		form.setFieldsValue({ quantity: 1 });
@@ -69,7 +91,7 @@ export const useBorrowForm = () => {
 	return {
 		form,
 		submitting,
-		mockDeviceOptions,
+		deviceOptions: devices,
 		changeQuantity,
 		handleSubmit,
 		handleCancel,

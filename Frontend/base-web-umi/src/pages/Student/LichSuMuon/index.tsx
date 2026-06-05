@@ -1,15 +1,23 @@
-// src/pages/LichSuMuon/index.tsx
 import React from 'react';
-import { Input, Select, Card, Typography } from 'antd';
+import { Input, Select, Card, Typography, Spin } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import { useBorrowHistory } from '../../services/LichSuMuon/useBorrowHistory'; // <--- Gọi "nhân viên xử lý logic" từ file bên cạnh vào
-import HistoryTable from './HistoryTable'; // <--- 1. Thêm dòng IMPORT bảng này vào
+// ĐÃ CHỈNH SỬA: Đường dẫn lấy logic từ tầng Service
+import { useBorrowHistory } from '../../../services/LichSuMuon/useBorrowHistory';
+import HistoryTable from './HistoryTable';
 
 const { Title, Paragraph } = Typography;
 
-const LichSuMuonThietBi = () => {
-	const { searchText, setSearchText, statusFilter, setStatusFilter, stats, filteredData, handleCancelRequest } =
-		useBorrowHistory();
+const LichSuMuonThietBi: React.FC = () => {
+	const {
+		searchText,
+		setSearchText,
+		statusFilter,
+		setStatusFilter,
+		stats,
+		filteredData,
+		loading,
+		handleCancelRequest,
+	} = useBorrowHistory();
 
 	return (
 		<div style={{ padding: '24px', background: '#f8fafc', minHeight: '100vh' }}>
@@ -22,7 +30,7 @@ const LichSuMuonThietBi = () => {
 					<Paragraph type='secondary'>Xem lại các yêu cầu mượn thiết bị của bạn</Paragraph>
 				</div>
 
-				{/* Khối các thẻ thống kê trạng thái (Top Stats) */}
+				{/* Khối thẻ thống kê trạng thái */}
 				<div
 					style={{
 						display: 'grid',
@@ -53,9 +61,8 @@ const LichSuMuonThietBi = () => {
 					))}
 				</div>
 
-				{/* Khung chứa Thanh tìm kiếm và Bảng dữ liệu */}
+				{/* Khung chứa công cụ lọc và bảng */}
 				<Card style={{ borderRadius: '12px', border: '1px solid #e2e8f0' }} bodyStyle={{ padding: '20px' }}>
-					{/* Thanh tìm kiếm và Bộ lọc */}
 					<div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
 						<Input
 							placeholder='Tìm kiếm theo tên thiết bị hoặc mã yêu cầu...'
@@ -80,8 +87,10 @@ const LichSuMuonThietBi = () => {
 						/>
 					</div>
 
-					{/* 2. THAY THẾ KHỐI TABLE CŨ BẰNG ĐOẠN ĐƯỢC BÓC TÁCH NÀY */}
-					<HistoryTable dataSource={filteredData} onCancel={handleCancelRequest} />
+					{/* Hiển thị hiệu ứng loading xoay tròn khi chuyển đổi Mock/API */}
+					<Spin spinning={loading}>
+						<HistoryTable dataSource={filteredData} onCancel={handleCancelRequest} />
+					</Spin>
 				</Card>
 			</div>
 		</div>
