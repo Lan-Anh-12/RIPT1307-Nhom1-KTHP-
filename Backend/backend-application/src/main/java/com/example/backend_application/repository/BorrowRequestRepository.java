@@ -4,7 +4,6 @@ import com.example.backend_application.entity.BorrowRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.backend_application.view.BorrowRequestView;
 import com.example.backend_application.dto.DeviceTopDTO;
-import com.example.backend_application.dto.StatusStatDTO;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
