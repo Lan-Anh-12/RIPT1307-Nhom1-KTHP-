@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Test API Notifications</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
+        .box { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input { padding: 8px; width: 200px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 8px 15px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
+        #result { background: #1e1e1e; color: #fff; padding: 15px; border-radius: 5px; min-height: 50px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h3>1. Lấy thông báo theo User ID</h3>
+        <input type="number" id="targetUserId" placeholder="Nhập ID User">
+        <button onclick="getNotifications()">Lấy dữ liệu</button>
+    </div>
+
+    <div class="box">
+        <h3>2. Đánh dấu đã đọc</h3>
+        <input type="number" id="notifId" placeholder="Nhập ID thông báo">
+        <button onclick="markRead()" style="background: #28a745;">Cập nhật (PUT)</button>
+    </div>
+
+    <div class="box">
+        <h3>Kết quả:</h3>
+        <pre id="result">...</pre>
+    </div>
+
+<script>
+    const baseUrl = 'http://localhost:8080/api/notifications';
+
+    // 1. API GET: Lấy thông báo
+    async function getNotifications() {
+        const userId = document.getElementById('targetUserId').value;
+        if (!userId) return alert("Nhập ID User");
+        
+        try {
+            const response = await fetch(`${baseUrl}/user/${userId}`, { method: 'GET' });
+            const data = await response.json();
+            document.getElementById('result').innerText = response.ok ? JSON.stringify(data, null, 2) : "Lỗi: " + response.status;
+        } catch (err) {
+            document.getElementById('result').innerText = "Lỗi: " + err.message;
+        }
+    }
+
+    // 2. API PUT: Đánh dấu đã đọc (Giống cấu trúc file thành công của bạn)
+    async function markRead() {
+        const id = document.getElementById('notifId').value;
+        if (!id) return alert("Nhập ID thông báo");
+
+        try {
+            // URL này phải khớp 100% với @PutMapping("/{id}/read") trong NotificationController
+            const response = await fetch(`${baseUrl}/${id}/read`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            // Nếu server trả về String thường thay vì JSON, dùng res.text()
+            const text = await response.text();
+            document.getElementById('result').innerText = response.ok ? "Thành công: " + text : "Lỗi " + response.status + ": " + text;
+        } catch (err) {
+            document.getElementById('result').innerText = "Lỗi kết nối: " + err.message;
+        }
+    }
+</script>
+</body>
+</html>
