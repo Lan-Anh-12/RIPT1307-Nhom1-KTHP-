@@ -25,7 +25,6 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
   return {
     footerRender: () => <Footer />,
     
-    // 🎯 ĐÃ SỬA: Khai tử hoàn toàn component cũ, chỉ render duy nhất icon logout của bạn
     rightContentRender: () => (
       <div style={{ display: 'flex', alignItems: 'center', paddingRight: '24px' }}>
         <LogoutOutlined 
@@ -65,7 +64,6 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       const { location } = history;
       const token = localStorage.getItem('token');
       
-      // Nếu lộ trình đang di chuyển tới hoặc đang đứng ở login -> Thoát luôn, cấm check quyền
       if (location.pathname === '/login') {
         return;
       }
