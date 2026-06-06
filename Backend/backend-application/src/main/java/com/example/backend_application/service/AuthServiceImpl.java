@@ -1,5 +1,6 @@
 package com.example.backend_application.service;
 
+import com.example.backend_application.dto.AuthResponseDTO;
 import com.example.backend_application.dto.LoginRequest;
 import com.example.backend_application.entity.User;
 import com.example.backend_application.repository.UserRepository;
@@ -14,8 +15,6 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -27,7 +26,7 @@ public class AuthServiceImpl implements AuthService {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
-    public Map<String, Object> login(LoginRequest loginRequest) {
+    public AuthResponseDTO login(LoginRequest loginRequest) {
         // 1. Tìm user theo email
         User user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new RuntimeException("Email không chính xác!"));
@@ -54,14 +53,12 @@ public class AuthServiceImpl implements AuthService {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        // 5. Trả về kết quả
-        Map<String, Object> response = new HashMap<>();
-        response.put("token", token);
-        response.put("role", user.getRole());
-        response.put("name", user.getName());
-        
-        return response;
+        // 5. Trả về DTO thay vì Map
+        return AuthResponseDTO.builder()
+                .token(token)
+                .userId(user.getId())
+                .name(user.getName())
+                .role(user.getRole())
+                .build();
     }
-
-    
 }

@@ -23,23 +23,45 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void createManualNotification(User user, Long deviceId, String status) {
-        // Tối ưu: Sử dụng map an toàn hơn để tránh lỗi nếu getDevice() trả về null
         String deviceName = inventoryRepository.findDeviceNameById(deviceId);
-    
-        // Nếu nó trả về null (do sai ID), gán tạm giá trị mặc định
         if (deviceName == null) deviceName = "Thiết bị không xác định";
 
-        String content = switch (status) {
-            case "APPROVED" -> "Yêu cầu mượn thiết bị " + deviceName + " của bạn đã được chấp nhận.";
-            case "REJECTED" -> "Yêu cầu mượn thiết bị " + deviceName + " của bạn đã bị từ chối.";
-            case "RETURNED" -> "Yêu cầu mượn thiết bị " + deviceName + " của bạn đã được trả lại.";
-            case "PENDING"  -> "Yêu cầu mượn thiết bị " + deviceName + " của bạn đã được gửi thành công.";
-            case "OVERDUE"  -> "Thiết bị " + deviceName + " của bạn đã quá hạn trả!";
-            case "DUE_SOON" -> "Thiết bị " + deviceName + " sắp đến hạn trả vào ngày mai.";
-            default -> "Cập nhật trạng thái thiết bị " + deviceName;
-        };
+        String title;
+        String content;
+
+        // Gán title và content dựa trên status
+        switch (status) {
+            case "APPROVED" -> {
+                title = "Phê duyệt yêu cầu";
+                content = "Yêu cầu mượn " + deviceName + " đã được chấp nhận.";
+            }
+            case "REJECTED" -> {
+                title = "Yêu cầu bị từ chối";
+                content = "Yêu cầu mượn " + deviceName + " đã bị từ chối.";
+            }
+            case "RETURNED" -> {
+                title = "Xác nhận trả thiết bị";
+                content = "Thiết bị " + deviceName + " đã được trả lại.";
+            }
+            case "PENDING"  -> {
+                title = "Đơn mượn mới";
+                content = "Yêu cầu mượn " + deviceName + " đã được gửi thành công.";
+            }
+            case "OVERDUE"  -> {
+                title = "Cảnh báo quá hạn";
+                content = "Thiết bị " + deviceName + " đã quá hạn trả!";
+            }
+            case "DUE_SOON" -> {
+                title = "Nhắc nhở trả thiết bị";
+                content = "Thiết bị " + deviceName + " sắp đến hạn trả vào ngày mai.";
+            }
+            default -> {
+                title = "Thông báo hệ thống";
+                content = "Cập nhật trạng thái cho " + deviceName;
+            }
+        }
         
-        saveNotification(user, "Thông báo đơn mượn", content);
+        saveNotification(user, title, content);
     }
 
     @Override

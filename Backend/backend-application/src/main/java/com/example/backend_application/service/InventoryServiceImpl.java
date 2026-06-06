@@ -8,6 +8,7 @@ import com.example.backend_application.repository.InventoryRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.hibernate.Hibernate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -46,10 +47,12 @@ public class InventoryServiceImpl implements InventoryService {
 
     // --- PHẦN BỔ SUNG TÌM KIẾM 
     @Override
+    @Transactional(readOnly = true)
     public List<DeviceResponseDTO> searchDevices(String keyword) {
         List<DeviceModel> devices;
         if (keyword == null || keyword.trim().isEmpty()) {
-            devices = inventoryRepository.findAll();
+            // Dùng hàm JOIN FETCH mới tạo
+            devices = inventoryRepository.findAllWithCategory(); 
         } else {
             devices = inventoryRepository.findByNameContainingIgnoreCase(keyword);
         }
@@ -75,28 +78,29 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     @Transactional
     public DeviceResponseDTO updateDevice(Long id, DeviceCreateRequestDTO dto) {
-        // Tìm thiết bị trong DB, nếu không có sẽ ném ra ngoại lệ
+        // 1. Cập nhật thiết bị
         DeviceModel device = inventoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy thiết bị với ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thiết bị ID: " + id));
 
-        // Cập nhật các thông tin từ DTO vào Entity
         device.setName(dto.getName());
         device.setImage(dto.getImageUrl());
         device.setStock(dto.getQuantity());
         device.setDescription(dto.getDescription());
-        
-        // Cập nhật trạng thái dựa trên số lượng mới
-        if (dto.getQuantity() != null && dto.getQuantity() > 0) {
-            device.setStatus("AVAILABLE");
-        } else {
-            device.setStatus("UNAVAILABLE");
-        }
+        device.setStatus((dto.getQuantity() != null && dto.getQuantity() > 0) ? "AVAILABLE" : "UNAVAILABLE");
 
-        Category categoryProxy = entityManager.getReference(Category.class, dto.getCategoryId());
-        device.setCategory(categoryProxy);
+        // Gán Category
+        Category category = entityManager.find(Category.class, dto.getCategoryId());
+        device.setCategory(category);
 
-        DeviceModel updatedDevice = inventoryRepository.save(device);
-        
+        inventoryRepository.save(device);
+
+        // 2. ÉP TẢI DỮ LIỆU (Manual Fetching)
+        // Thay vì chỉ findById, ta truy vấn trực tiếp ép nó Join với Category
+        DeviceModel updatedDevice = entityManager.createQuery(
+                "SELECT d FROM DeviceModel d JOIN FETCH d.category WHERE d.id = :id", DeviceModel.class)
+                .setParameter("id", id)
+                .getSingleResult();
+
         return convertToDTO(updatedDevice);
     }
 
@@ -104,18 +108,25 @@ public class InventoryServiceImpl implements InventoryService {
 
     // Hàm chuyển đổi dùng chung
     private DeviceResponseDTO convertToDTO(DeviceModel device) {
-        DeviceResponseDTO response = new DeviceResponseDTO();
-        response.setId(device.getId());
-        response.setName(device.getName());
-        response.setQuantity(device.getStock());
-        response.setImageUrl(device.getImage());
-        response.setDescription(device.getDescription());
-        response.setStatus(device.getStatus());
+    DeviceResponseDTO response = new DeviceResponseDTO();
+    response.setId(device.getId());
+    response.setName(device.getName());
+    response.setQuantity(device.getStock());
+    response.setImageUrl(device.getImage());
+    response.setDescription(device.getDescription());
+    response.setStatus(device.getStatus());
+    
+    // SỬA ĐOẠN NÀY ĐỂ TRÁNH LỖI LAZY
+    if (device.getCategory() != null) {
+        response.setCategoryId(device.getCategory().getId());
         
-        if (device.getCategory() != null) {
-            response.setCategoryId(device.getCategory().getId());
+        // Kiểm tra xem Category đã được load hay chưa
+        if (Hibernate.isInitialized(device.getCategory())) {
             response.setCategory(device.getCategory().getName());
+        } else {
+            response.setCategory("N/A"); // Hoặc tên mặc định nếu chưa load
         }
+    }
         return response;
     }
 
