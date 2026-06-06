@@ -16,6 +16,9 @@ public interface InventoryRepository extends JpaRepository<DeviceModel, Long> {
 
     DeviceResponseDTO getDeviceById(Long id);
 
+    @Query("SELECT d FROM DeviceModel d LEFT JOIN FETCH d.category")
+    List<DeviceModel> findAllWithCategory();
+
     // Sử dụng 'stock' thay vì 'quantity'
     @Query("SELECT d.stock FROM DeviceModel d WHERE d.id = :id")
     Integer getAvailableQuantity(@Param("id") Long id);

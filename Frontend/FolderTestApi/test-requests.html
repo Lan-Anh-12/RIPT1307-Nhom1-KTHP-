@@ -2,128 +2,133 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hệ thống quản lý yêu cầu mượn thiết bị</title>
+    <title>Test API Thiết bị</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f4f6f9; }
-        .container { max-width: 1100px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-        .badge { padding: 5px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; background-color: #e9ecef; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .modal-content { background: #fff; padding: 25px; border-radius: 10px; width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .modal-header { font-size: 18px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .detail-info p { margin: 8px 0; font-size: 14px; }
-        .modal-actions { margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; }
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
+        .box { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .row { margin-bottom: 20px; border-bottom: 1px solid #ddd; padding-bottom: 15px; }
+        .row input { display: block; margin: 5px 0; padding: 8px; width: 300px; }
+        button { padding: 10px 20px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 4px; }
+        button:hover { background: #218838; }
+        pre { background: #333; color: #fff; padding: 15px; overflow-x: auto; border-radius: 5px; white-space: pre-wrap; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Danh sách yêu cầu mượn thiết bị</h2>
-    <table id="requestTable">
-        <thead>
-            <tr>
-                <th>Mã số</th>
-                <th>Người mượn</th>
-                <th>Thiết bị</th>
-                <th>Ngày mượn</th>
-                <th>Hạn trả</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-    </table>
-</div>
+    <div class="box">
+        <h2>1. Đăng nhập</h2>
+        <input id="loginEmail" value="tranlananh12bpt@gmail.com" placeholder="Email">
+        <input id="loginPass" type="password" value="123456" placeholder="Mật khẩu">
+        <button onclick="login()">Đăng nhập</button>
+        <p id="loginStatus"></p>
+    </div>
 
-<div class="modal" id="detailModal">
-    <div class="modal-content">
-        <div class="modal-header">Chi tiết yêu cầu</div>
-        <div class="detail-info">
-            <p><strong>Thiết bị:</strong> <span id="lblDevice"></span></p>
-            <p><strong>Số lượng:</strong> <span id="lblQty"></span></p>
-            <p><strong>Ngày mượn:</strong> <span id="lblCreated"></span></p>
-            <p><strong>Ngày trả dự kiến:</strong> <span id="lblExpected"></span></p>
-            <textarea id="txtNote" style="width:100%; margin-top:10px; padding: 5px;" rows="3" placeholder="Ghi chú xử lý..."></textarea>
+    <div class="box">
+        <h2>2. Các API Thiết bị</h2>
+        <div class="row">
+            <button onclick="callApi('GET', '/api/devices', null)">Lấy danh sách thiết bị</button>
         </div>
-        <div class="modal-actions">
-            <button onclick="closeModal()">Đóng</button>
-            <button id="btnApprove" style="background:#28a745; color:white; border:none; padding:8px 15px; cursor:pointer;">Duyệt</button>
-            <button id="btnReject" style="background:#dc3545; color:white; border:none; padding:8px 15px; cursor:pointer;">Từ chối</button>
+
+        <div class="row">
+            <h4>Tạo mới (Admin)</h4>
+            <input id="cName" placeholder="Tên thiết bị">
+            <input id="cImg" placeholder="Link ảnh">
+            <input id="cQty" type="number" placeholder="Số lượng">
+            <input id="cDesc" placeholder="Mô tả">
+            <input id="cCat" type="number" placeholder="Category ID">
+            <button onclick="createDevice()">Gửi yêu cầu tạo</button>
+        </div>
+
+        <div class="row">
+            <h4>Cập nhật (Admin)</h4>
+            <input id="uId" placeholder="ID thiết bị">
+            <input id="uName" placeholder="Tên mới">
+            <input id="uImg" placeholder="Link ảnh mới">
+            <input id="uQty" type="number" placeholder="Số lượng mới">
+            <input id="uDesc" placeholder="Mô tả mới">
+            <input id="uCat" type="number" placeholder="Category ID mới">
+            <button onclick="updateDevice()">Gửi yêu cầu sửa</button>
+        </div>
+
+        <div class="row">
+            <h4>Xóa (Admin)</h4>
+            <input id="dId" placeholder="ID thiết bị cần xóa">
+            <button onclick="deleteDevice()">Xác nhận xóa</button>
         </div>
     </div>
-</div>
 
-<script>
-    const API_URL = 'http://localhost:8080/api/requests';
-    const basicAuthToken = 'Basic ' + btoa('user:a3a2788c-25b5-4ebb-a779-cd63ae42e1f0');
+    <div class="box">
+        <h3>Kết quả:</h3>
+        <pre id="result">Kết quả sẽ hiện ở đây...</pre>
+    </div>
 
-    window.onload = fetchData;
+    <script>
+        const BASE_URL = "http://localhost:8080";
 
-    async function fetchData() {
-        const res = await fetch(`${API_URL}/all`, { headers: { 'Authorization': basicAuthToken } });
-        const data = await res.json();
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-        
-        data.forEach(item => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>REQ-2026-${String(item.idRequest).padStart(3, '0')}</td>
-                <td>${item.studentName}</td>
-                <td>${item.device}</td>
-                <td>${new Date(item.createdAt).toLocaleDateString('vi-VN')}</td>
-                <td>${item.expectedReturnDate ? new Date(item.expectedReturnDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
-                <td><span class="badge">${item.status}</span></td>
-                <td><button onclick="showDetail(${item.idRequest})">Xem</button></td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    async function showDetail(id) {
-        const res = await fetch(`${API_URL}/${id}`, { headers: { 'Authorization': basicAuthToken } });
-        const data = await res.json();
-        
-        document.getElementById('lblDevice').innerText = data.device;
-        document.getElementById('lblQty').innerText = data.quantity;
-        document.getElementById('lblCreated').innerText = new Date(data.createdAt).toLocaleDateString('vi-VN');
-        document.getElementById('lblExpected').innerText = data.expectedReturnDate ? new Date(data.expectedReturnDate).toLocaleDateString('vi-VN') : 'N/A';
-        
-        const btnApprove = document.getElementById('btnApprove');
-        const btnReject = document.getElementById('btnReject');
-
-        // Logic ẩn/hiện nút dựa trên trạng thái
-        if (data.status === 'PENDING') {
-            btnApprove.style.display = 'inline-block';
-            btnApprove.innerText = "Duyệt";
-            btnApprove.onclick = () => updateStatus(id, 'APPROVED');
-            btnReject.style.display = 'inline-block';
-            btnReject.onclick = () => updateStatus(id, 'REJECTED');
-        } else if (data.status === 'APPROVED') {
-            btnApprove.style.display = 'inline-block';
-            btnApprove.innerText = "Ghi nhận đã trả";
-            btnApprove.onclick = () => updateStatus(id, 'RETURNED');
-            btnReject.style.display = 'none';
-        } else {
-            btnApprove.style.display = 'none';
-            btnReject.style.display = 'none';
+        async function login() {
+            const res = await fetch(`${BASE_URL}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    email: document.getElementById('loginEmail').value, 
+                    password: document.getElementById('loginPass').value 
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                localStorage.setItem("token", data.token);
+                document.getElementById('loginStatus').innerText = "Chào " + data.name + " (Role: " + data.role + ")";
+                alert("Đăng nhập thành công!");
+            } else {
+                alert("Lỗi: " + data.message);
+            }
         }
 
-        document.getElementById('detailModal').style.display = 'flex';
-    }
+        async function callApi(method, path, body) {
+            const res = await fetch(`${BASE_URL}${path}`, {
+                method: method,
+                headers: { 
+                    'Authorization': 'Bearer ' + localStorage.getItem("token"), 
+                    'Content-Type': 'application/json' 
+                },
+                body: body ? JSON.stringify(body) : null
+            });
+            
+            const text = await res.text();
+            let displayData;
+            try {
+                displayData = JSON.stringify(JSON.parse(text), null, 2);
+            } catch (e) {
+                displayData = text; // Nếu không phải JSON thì hiện text
+            }
+            document.getElementById('result').innerText = `Status: ${res.status}\n\n${displayData}`;
+        }
 
-    async function updateStatus(id, status) {
-        await fetch(`${API_URL}/${id}/status`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization': basicAuthToken },
-            body: JSON.stringify({ status: status, note: document.getElementById('txtNote').value })
-        });
-        closeModal();
-        fetchData();
-    }
+        function createDevice() {
+            callApi('POST', '/api/devices/create', {
+                name: document.getElementById('cName').value,
+                imageUrl: document.getElementById('cImg').value,
+                quantity: parseInt(document.getElementById('cQty').value) || 0,
+                description: document.getElementById('cDesc').value,
+                categoryId: parseInt(document.getElementById('cCat').value)
+            });
+        }
 
-    function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
-</script>
+        function updateDevice() {
+            const id = document.getElementById('uId').value;
+            callApi('PUT', '/api/devices/' + id, {
+                name: document.getElementById('uName').value,
+                imageUrl: document.getElementById('uImg').value,
+                quantity: parseInt(document.getElementById('uQty').value) || 0,
+                description: document.getElementById('uDesc').value,
+                categoryId: parseInt(document.getElementById('uCat').value)
+            });
+        }
+
+        function deleteDevice() {
+            const id = document.getElementById('dId').value;
+            callApi('DELETE', '/api/devices/' + id, null);
+        }
+    </script>
 </body>
 </html>

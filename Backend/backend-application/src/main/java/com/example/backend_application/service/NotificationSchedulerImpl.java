@@ -4,6 +4,7 @@ import com.example.backend_application.entity.BorrowRequest;
 import com.example.backend_application.entity.Notification;
 import com.example.backend_application.entity.User;
 import com.example.backend_application.repository.BorrowRequestRepository;
+import com.example.backend_application.repository.InventoryRepository;
 import com.example.backend_application.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,48 +24,40 @@ public class NotificationSchedulerImpl implements NotificationScheduler {
     @Autowired 
     private NotificationRepository notificationRepository;
 
+    @Autowired
+    private InventoryRepository inventoryRepository;
+
     @Override
     @Transactional
-    // Đang để 0 * * * * * để test mỗi phút. Khi chạy thật hãy đổi lại thành "0 0 8 * * *"
     @Scheduled(cron = "0 * * * * *", zone = "Asia/Ho_Chi_Minh")
     public void autoCheckDeadline() {
-        System.out.println(">>> Scheduler bắt đầu quét đơn: " + LocalDateTime.now());
-        
         List<BorrowRequest> requests = borrowRequestRepository.findAll();
-        System.out.println(">>> Tổng số bản ghi tìm thấy trong DB: " + requests.size());
-
         LocalDate today = LocalDate.now();
 
         for (BorrowRequest req : requests) {
-            // Chỉ xử lý đơn APPROVED
-            if (!"APPROVED".equals(req.getStatus())) {
-                continue;
-            }
+            if (!"APPROVED".equals(req.getStatus())) continue;
 
-            if (req.getExpectedReturnDate() == null) {
-                System.out.println(">>> [DEBUG] ID " + req.getId() + " bị null ngày trả.");
-                continue;
-            }
+            // Lấy tên thiết bị dựa trên ID
+            // Nếu bạn dùng deviceItemId, hãy gọi repo của nó
+            String deviceName = inventoryRepository.findById(req.getDeviceItemId())
+                                    .map(device -> device.getName())
+                                    .orElse("Thiết bị ID: " + req.getDeviceItemId());
 
             LocalDate deadline = req.getExpectedReturnDate();
-            System.out.println(">>> [DEBUG] Kiểm tra ID: " + req.getId() + " | Hạn trả: " + deadline + " | Hôm nay: " + today);
-
-            // 1. QUÁ HẠN: Hạn < Hôm nay
-            if (deadline.isBefore(today)) {
-                req.setStatus("OVERDUE");
-                borrowRequestRepository.save(req);
-                saveAutoNotification(req.getAppUser(), "Cảnh báo quá hạn", 
-                    "Thiết bị ID: " + req.getDeviceItemId() + " đã quá hạn trả!");
-                System.out.println(">>> Đã chuyển trạng thái sang OVERDUE cho đơn ID: " + req.getId());
-            } 
-            // 2. SẮP ĐẾN HẠN: Hạn = Hôm nay + 1 ngày
-            else if (deadline.isEqual(today.plusDays(1))) {
-                saveAutoNotification(req.getAppUser(), "Nhắc nhở", 
-                    "Thiết bị ID: " + req.getDeviceItemId() + " sắp đến hạn trả vào ngày mai.");
-                System.out.println(">>> Đã gửi nhắc nhở cho đơn ID: " + req.getId());
+            
+            if (deadline != null) {
+                if (deadline.isBefore(today)) {
+                    req.setStatus("OVERDUE");
+                    borrowRequestRepository.save(req);
+                    saveAutoNotification(req.getAppUser(), "Cảnh báo quá hạn", 
+                        "Thiết bị " + deviceName + " đã quá hạn trả!");
+                } 
+                else if (deadline.isEqual(today.plusDays(1))) {
+                    saveAutoNotification(req.getAppUser(), "Nhắc nhở", 
+                        "Thiết bị " + deviceName + " sắp đến hạn trả vào ngày mai.");
+                }
             }
         }
-        System.out.println(">>> Scheduler kết thúc.");
     }
 
     private void saveAutoNotification(User user, String title, String content) {
