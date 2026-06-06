@@ -8,93 +8,91 @@ import HistoryTable from './HistoryTable';
 const { Title, Paragraph } = Typography;
 
 const LichSuMuonThietBi: React.FC = () => {
-	const {
-		searchText,
-		setSearchText,
-		statusFilter,
-		setStatusFilter,
-		stats,
-		filteredData,
-		loading,
-		handleCancelRequest,
-	} = useBorrowHistory();
+    const {
+        searchText,
+        setSearchText,
+        statusFilter,
+        setStatusFilter,
+        stats,
+        filteredData,
+        loading,
+        handleCancelRequest,
+    } = useBorrowHistory();
 
-	return (
-		<div style={{ padding: '24px', background: '#f8fafc', minHeight: '100vh' }}>
-			<div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-				{/* Tiêu đề trang */}
-				<div style={{ marginBottom: '24px' }}>
-					<Title level={2} style={{ marginBottom: '4px' }}>
-						Lịch sử mượn thiết bị
-					</Title>
-					<Paragraph type='secondary'>Xem lại các yêu cầu mượn thiết bị của bạn</Paragraph>
-				</div>
+    return (
+        <div style={{ padding: '24px', background: '#f8fafc', minHeight: '100vh' }}>
+            <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+                {/* Tiêu đề trang */}
+                <div style={{ marginBottom: '24px' }}>
+                    <Title level={2} style={{ marginBottom: '4px' }}>
+                        Lịch sử mượn thiết bị
+                    </Title>
+                    <Paragraph type='secondary'>Xem lại các yêu cầu mượn thiết bị của bạn</Paragraph>
+                </div>
 
-				{/* Khối thẻ thống kê trạng thái */}
-				<div
-					style={{
-						display: 'grid',
-						gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-						gap: '16px',
-						marginBottom: '24px',
-					}}
-				>
-					{[
-						{ label: 'Chờ duyệt', count: stats.pending },
-						{ label: 'Đã duyệt', count: stats.approved },
-						{ label: 'Từ chối', count: stats.rejected },
-						{ label: 'Đã trả', count: stats.returned },
-						{ label: 'Quá hạn', count: stats.overdue },
-					].map((item, index) => (
-						<Card
-							key={index}
-							bodyStyle={{ padding: '16px' }}
-							style={{ borderRadius: '8px', border: '1px solid #e2e8f0' }}
-						>
-							<Paragraph type='secondary' style={{ margin: 0, fontSize: '13px' }}>
-								{item.label}
-							</Paragraph>
-							<Title level={3} style={{ margin: '4px 0 0 0', fontWeight: '700' }}>
-								{item.count}
-							</Title>
-						</Card>
-					))}
-				</div>
+                {/* Khối thẻ thống kê trạng thái - Đã đồng bộ với Enum Backend */}
+                <div
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                        gap: '16px',
+                        marginBottom: '24px',
+                    }}
+                >
+                    {[
+                        { label: 'Chờ duyệt', count: stats.pending },
+                        { label: 'Đã duyệt', count: stats.approved },
+                        { label: 'Từ chối', count: stats.rejected },
+                        { label: 'Đã trả', count: stats.returned },
+                    ].map((item, index) => (
+                        <Card
+                            key={index}
+                            bodyStyle={{ padding: '16px' }}
+                            style={{ borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                        >
+                            <Paragraph type='secondary' style={{ margin: 0, fontSize: '13px' }}>
+                                {item.label}
+                            </Paragraph>
+                            <Title level={3} style={{ margin: '4px 0 0 0', fontWeight: '700' }}>
+                                {item.count}
+                            </Title>
+                        </Card>
+                    ))}
+                </div>
 
-				{/* Khung chứa công cụ lọc và bảng */}
-				<Card style={{ borderRadius: '12px', border: '1px solid #e2e8f0' }} bodyStyle={{ padding: '20px' }}>
-					<div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
-						<Input
-							placeholder='Tìm kiếm theo tên thiết bị hoặc mã yêu cầu...'
-							prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
-							value={searchText}
-							onChange={(e) => setSearchText(e.target.value)}
-							style={{ flex: 1, borderRadius: '6px' }}
-							allowClear
-						/>
-						<Select
-							value={statusFilter}
-							onChange={(value) => setStatusFilter(value)}
-							style={{ width: 140 }}
-							options={[
-								{ value: 'Tất cả', label: 'Tất cả' },
-								{ value: 'Chờ duyệt', label: 'Chờ duyệt' },
-								{ value: 'Đã duyệt', label: 'Đã duyệt' },
-								{ value: 'Từ chối', label: 'Từ chối' },
-								{ value: 'Đã trả', label: 'Đã trả' },
-								{ value: 'Quá hạn', label: 'Quá hạn' },
-							]}
-						/>
-					</div>
+                {/* Khu vực bộ lọc & Bảng hiển thị dữ liệu */}
+                <Card style={{ borderRadius: '12px', border: '1px solid #e2e8f0' }} bodyStyle={{ padding: '20px' }}>
+                    <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
+                        <Input
+                            placeholder='Tìm kiếm theo tên thiết bị hoặc mã yêu cầu...'
+                            prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
+                            style={{ flex: 1, borderRadius: '6px' }}
+                            allowClear
+                        />
+                        <Select
+                            value={statusFilter}
+                            onChange={(value) => setStatusFilter(value)}
+                            style={{ width: 140 }}
+                            options={[
+                                { value: 'Tất cả', label: 'Tất cả' },
+                                { value: 'Chờ duyệt', label: 'Chờ duyệt' },
+                                { value: 'Đã duyệt', label: 'Đã duyệt' },
+                                { value: 'Từ chối', label: 'Từ chối' },
+                                { value: 'Đã trả', label: 'Đã trả' },
+                            ]}
+                        />
+                    </div>
 
-					{/* Hiển thị hiệu ứng loading xoay tròn khi chuyển đổi Mock/API */}
-					<Spin spinning={loading}>
-						<HistoryTable dataSource={filteredData} onCancel={handleCancelRequest} />
-					</Spin>
-				</Card>
-			</div>
-		</div>
-	);
+                    {/* Hiệu ứng loading thật xoay tròn khi đợi phản hồi từ Backend */}
+                    <Spin spinning={loading}>
+                        <HistoryTable dataSource={filteredData} onCancel={handleCancelRequest} />
+                    </Spin>
+                </Card>
+            </div>
+        </div>
+    );
 };
 
 export default LichSuMuonThietBi;

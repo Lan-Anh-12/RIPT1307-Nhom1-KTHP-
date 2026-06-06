@@ -1,23 +1,35 @@
-// src/pages/DanhSachThietBi/DeviceDetailModal.tsx
 import React from 'react';
-import { Modal, Button, Typography, Space, Badge } from 'antd';
+import { Modal, Button, Image, Typography, Space, Badge } from 'antd';
 import { InfoCircleOutlined, SolutionOutlined } from '@ant-design/icons';
 import { history } from 'umi';
-// 🌟 ĐÃ SỬA: Import kiểu dữ liệu chuẩn từ file định nghĩa chung của thầy
 import type { DeviceType } from '../../../services/DanhSachThietBi/typing';
 
 const { Title, Paragraph, Text } = Typography;
 
-// Định nghĩa các "đầu vào" (Props) mà Component này cần trang chính truyền cho
 interface DeviceDetailModalProps {
-	isOpen: boolean; // Trạng thái đóng/mở popup
-	device: DeviceType | null; // 🌟 ĐÃ SỬA: Thay 'any' bằng kiểu DeviceType chuẩn (hoặc null nếu chưa chọn)
-	onClose: () => void; // Hàm xử lý khi bấm đóng popup
+	isOpen: boolean;
+	device: DeviceType | null;
+	onClose: () => void;
 }
 
 const DeviceDetailModal: React.FC<DeviceDetailModalProps> = ({ isOpen, device, onClose }) => {
-	// Nếu chưa có thiết bị nào được chọn thì không hiển thị gì cả
 	if (!device) return null;
+
+	// 🌟 ĐÃ THÊM: Hàm xử lý map Trạng thái từ Backend sang UI hiển thị của Antd
+	const getStatusDisplay = (status?: string) => {
+		switch (status?.toUpperCase()) {
+			case 'AVAILABLE':
+				return { text: 'Còn hàng', statusType: 'success' as const };
+			case 'BORROWED':
+				return { text: 'Đang được mượn', statusType: 'error' as const };
+			case 'MAINTENANCE':
+				return { text: 'Bảo trì', statusType: 'warning' as const };
+			default:
+				return { text: status || 'Không rõ', statusType: 'default' as const };
+		}
+	};
+
+	const statusConfig = getStatusDisplay(device.status);
 
 	return (
 		<Modal
@@ -31,7 +43,7 @@ const DeviceDetailModal: React.FC<DeviceDetailModalProps> = ({ isOpen, device, o
 			}
 			visible={isOpen}
 			onCancel={onClose}
-			footer={null} // Tự custom nút mượn riêng bên dưới
+			footer={null}
 			width={500}
 			centered
 		>
@@ -48,9 +60,13 @@ const DeviceDetailModal: React.FC<DeviceDetailModalProps> = ({ isOpen, device, o
 					}}
 				>
 					<img
-						src={device.image_url} // 🌟 ĐÃ SỬA: Đổi từ device.image thành device.image_url cho khớp Database
+						src={device.imageUrl} // Cấu hình chuẩn từ Backend thật của Lan Anh
 						alt={device.name}
 						style={{ maxHeight: '200px', maxWidth: '100%', objectFit: 'contain' }}
+						onError={(e) => {
+							// Khi link ảnh bị lỗi, tự động đổi sang ảnh dự phòng mặc định của Antd
+							e.currentTarget.src = 'https://gw.alipayobjects.com/zos/rmsportal/JiqGscbAOlBsTlqOMfCb.png';
+						}}
 					/>
 				</div>
 
@@ -59,10 +75,15 @@ const DeviceDetailModal: React.FC<DeviceDetailModalProps> = ({ isOpen, device, o
 					{device.name}
 				</Title>
 				<Space style={{ marginBottom: '16px' }} size='middle'>
-					<Badge status={device.statusType} text={device.status} />
+					{/* 🌟 ĐÃ SỬA: Dùng cấu hình trạng thái động lấy từ hàm map */}
+					<Badge status={statusConfig.statusType} text={statusConfig.text} />
 					<Text type='secondary'>|</Text>
 					<Text type='secondary'>
 						Danh mục: <Text strong>{device.category}</Text>
+					</Text>
+					<Text type='secondary'>|</Text>
+					<Text type='secondary'>
+						Số lượng: <Text strong>{device.quantity ?? 0}</Text>
 					</Text>
 				</Space>
 
@@ -82,19 +103,22 @@ const DeviceDetailModal: React.FC<DeviceDetailModalProps> = ({ isOpen, device, o
 					icon={<SolutionOutlined />}
 					size='large'
 					block
+					disabled={device.status?.toUpperCase() !== 'AVAILABLE'} // 🌟 ĐÃ THÊM: Vô hiệu hóa nút nếu thiết bị đang bận hoặc hỏng
 					style={{
-						background: '#00b96b',
-						borderColor: '#00b96b',
+						background: device.status?.toUpperCase() === 'AVAILABLE' ? '#00b96b' : '#d9d9d9',
+						borderColor: device.status?.toUpperCase() === 'AVAILABLE' ? '#00b96b' : '#d9d9d9',
 						height: '45px',
 						borderRadius: '8px',
 						fontWeight: '600',
 					}}
 					onClick={() => {
-						onClose(); // Đóng popup
-						history.push(`/yeu-cau-muon?deviceId=${device.id}`); // Điều hướng sang trang đăng ký mượn
+						onClose();
+						history.push(`/yeu-cau-muon?deviceId=${device.id}`);
 					}}
 				>
-					Đăng ký mượn thiết bị này
+					{device.status?.toUpperCase() === 'AVAILABLE'
+						? 'Đăng ký mượn thiết bị này'
+						: 'Không thể mượn tại thời điểm này'}
 				</Button>
 			</div>
 		</Modal>

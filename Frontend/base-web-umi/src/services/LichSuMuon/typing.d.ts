@@ -1,22 +1,21 @@
 declare namespace BorrowHistorySpace {
-	// Cấu trúc dữ liệu hiển thị lịch sử đơn mượn
+	// Cấu trúc dữ liệu chuẩn trả về từ BorrowResponseDTO của Java
 	interface HistoryItem {
-		id: string;
-		key: string; // Mã đơn mượn (Ví dụ: REQ-2025-001)
-		deviceName: string; // Tên thiết bị map từ bảng device_model
+		id: number; // ID tự tăng kiểu Long dưới DB
+		deviceItemId: number;
+		deviceName: string; // Tên thiết bị tương ứng
 		quantity: number; // Số lượng mượn
-		startDate: string; // Ngày mượn (borrow_date)
-		endDate: string; // Ngày trả dự kiến (expected_return_date)
-		actualDate: string; // Ngày trả thực tế (nếu có)
-		status: 'Chờ duyệt' | 'Đã duyệt' | 'Từ chối' | 'Đã trả' | 'Quá hạn'; // Trạng thái hiển thị tiếng Việt
+		requestDate: string; // Ngày gửi yêu cầu (YYYY-MM-DD)
+		expectedReturnDate: string; // Ngày hẹn trả (YYYY-MM-DD)
+		actualReturnDate: string | null; // Ngày trả thực tế
+		status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'RETURNED'; // Enum chuẩn hệ thống
 	}
 
-	// Thống kê số lượng theo trạng thái đơn
+	// Thống kê số lượng dựa theo Enum hệ thống
 	interface HistoryStats {
 		pending: number;
 		approved: number;
 		rejected: number;
 		returned: number;
-		overdue: number;
 	}
 }

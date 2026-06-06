@@ -1,15 +1,15 @@
 import { request } from 'umi';
 
-// 1. API lấy toàn bộ danh sách lịch sử mượn của User đang đăng nhập
-export async function getBorrowHistoryList(): Promise<{ data: BorrowHistorySpace.HistoryItem[] }> {
-	return request('/api/borrow-requests/history', {
+// 1. API lấy toàn bộ danh sách lịch sử mượn của User từ Token
+export async function getBorrowHistoryList(): Promise<BorrowHistorySpace.HistoryItem[]> {
+	return request('/api/requests/user', {
 		method: 'GET',
 	});
 }
 
-// 2. API thực hiện hủy đơn mượn (Xóa hoặc đổi trạng thái sang REJECTED/CANCELLED dưới DB)
-export async function cancelBorrowRequest(id: string): Promise<any> {
-	return request(`/api/borrow-requests/${id}/cancel`, {
-		method: 'POST',
+// 2. API thực hiện hủy đơn mượn (Lan Anh thiết kế nhận PUT để cập nhật status thành REJECTED)
+export async function cancelBorrowRequest(id: number): Promise<any> {
+	return request(`/api/requests/${id}/cancel`, {
+		method: 'PUT',
 	});
 }

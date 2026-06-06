@@ -10,13 +10,14 @@ const ThongBaoCuaToi: React.FC = () => {
 	const { activeTab, setActiveTab, stats, filteredNotifications, loading, handleMarkAsRead, handleMarkAllAsRead } =
 		useNotification();
 
-	// Tạo Icon tương ứng với loại cảnh báo
+	// 🌟 ĐÃ SỬA: Khớp giá trị Enum chữ in hoa từ cơ sở dữ liệu Backend
 	const renderIcon = (type?: string) => {
 		switch (type) {
-			case 'error':
+			case 'ERROR':
 				return <CloseCircleFilled style={{ color: '#ff4d4f', fontSize: '20px', marginTop: '4px' }} />;
-			case 'warning':
+			case 'WARNING':
 				return <ExclamationCircleFilled style={{ color: '#faad14', fontSize: '20px', marginTop: '4px' }} />;
+			case 'INFO':
 			default:
 				return <InfoCircleFilled style={{ color: '#1890ff', fontSize: '20px', marginTop: '4px' }} />;
 		}
@@ -93,6 +94,7 @@ const ThongBaoCuaToi: React.FC = () => {
 									borderRadius: '8px',
 									border: '1px solid #e2e8f0',
 									boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+									backgroundColor: notif.isRead ? '#ffffff' : '#f8fafc', // Đổi nhẹ màu nền nếu chưa đọc để dễ phân biệt
 								}}
 							>
 								<div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
@@ -104,7 +106,8 @@ const ThongBaoCuaToi: React.FC = () => {
 										{/* Tiêu đề + Dấu chấm đỏ chưa đọc */}
 										<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
 											<Text style={{ fontWeight: 600, fontSize: '15px', color: '#1e293b' }}>{notif.title}</Text>
-											{!notif.is_read && (
+											{/* 🌟 ĐÃ SỬA: Chuyển sang thuộc tính isRead */}
+											{!notif.isRead && (
 												<span
 													style={{
 														width: '6px',
@@ -126,11 +129,12 @@ const ThongBaoCuaToi: React.FC = () => {
 										<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 											<Space size='middle' style={{ fontSize: '12px', color: '#94a3b8' }}>
 												<span>Hệ thống</span>
-												<span>{notif.created_at}</span>
+												{/* 🌟 ĐÃ SỬA: Chuyển sang thuộc tính createdAt */}
+												<span>{notif.createdAt}</span>
 											</Space>
 
-											{/* Chỉ hiển thị nút Đánh dấu đã đọc nếu chưa đọc */}
-											{!notif.is_read && (
+											{/* 🌟 ĐÃ SỬA: Chỉ hiển thị nút nếu thuộc tính isRead bằng false */}
+											{!notif.isRead && (
 												<span
 													onClick={() => handleMarkAsRead(notif.id)}
 													style={{

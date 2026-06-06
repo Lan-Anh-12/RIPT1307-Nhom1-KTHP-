@@ -1,7 +1,8 @@
 import React from 'react';
 import { Form, Select, DatePicker, Button, Input, Space, Typography, Card } from 'antd';
 import { MinusOutlined, PlusOutlined, SendOutlined } from '@ant-design/icons';
-// ĐÃ CHỈNH SỬA: Đường dẫn nhảy ra thư mục services
+import moment from 'moment';
+// Đường dẫn gọi hook dịch vụ kết nối Backend thật
 import { useBorrowForm } from '../../../services/YeuCauMuon/useBorrowForm';
 
 const { Title, Paragraph } = Typography;
@@ -27,16 +28,17 @@ const YeuCauMuonThietBi: React.FC = () => {
 					}}
 				>
 					<Form form={form} layout='vertical' onFinish={handleSubmit} initialValues={{ quantity: 1 }}>
-						{/* Chọn thiết bị */}
+						{/* Chọn thiết bị - Đã đồng bộ trường deviceItemId khớp Backend */}
 						<Form.Item
 							label={<span style={{ fontWeight: 600 }}>Chọn thiết bị</span>}
-							name='deviceId'
+							name='deviceItemId'
 							rules={[{ required: true, message: 'Vui lòng chọn thiết bị muốn mượn!' }]}
 						>
 							<Select placeholder='-- Chọn thiết bị --' size='large' style={{ borderRadius: '6px' }}>
 								{deviceOptions.map((device) => (
+									/* Đã đồng bộ thuộc tính quantity thay cho stock */
 									<Select.Option key={device.id} value={device.id}>
-										{device.name} (Kho: {device.stock})
+										{device.name} (Kho: {device.quantity ?? 0})
 									</Select.Option>
 								))}
 							</Select>
@@ -44,30 +46,30 @@ const YeuCauMuonThietBi: React.FC = () => {
 
 						{/* Cụm Ngày mượn & Ngày trả */}
 						<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-							<Form.Item
-								label={<span style={{ fontWeight: 600 }}>Ngày mượn</span>}
-								name='startDate'
-								rules={[{ required: true, message: 'Chọn ngày mượn!' }]}
-							>
+							{/* Ngày mượn: Khóa hiển thị mặc định là ngày hôm nay, Backend tự động xử lý ngày tạo */}
+							<Form.Item label={<span style={{ fontWeight: 600 }}>Ngày mượn (Hôm nay)</span>}>
 								<DatePicker
-									placeholder='mm/dd/yyyy'
+									defaultValue={moment()}
+									disabled
 									size='large'
-									style={{ width: '100%', borderRadius: '6px' }}
+									style={{ width: '100%', borderRadius: '6px', background: '#f5f5f5' }}
 									format='MM/DD/YYYY'
 								/>
 							</Form.Item>
 
+							{/* Ngày trả dự kiến - Đã đồng bộ trường expectedReturnDate khớp Backend */}
 							<Form.Item
 								label={<span style={{ fontWeight: 600 }}>Ngày trả dự kiến</span>}
-								name='endDate'
+								name='expectedReturnDate'
 								rules={[
 									{ required: true, message: 'Chọn ngày trả dự kiến!' },
-									({ getFieldValue }) => ({
+									() => ({
 										validator(_, value) {
-											if (!value || !getFieldValue('startDate') || value.isAfter(getFieldValue('startDate'))) {
+											// Ràng buộc logic: Ngày hẹn trả phải từ ngày mai trở đi
+											if (!value || value.isAfter(moment().endOf('day'))) {
 												return Promise.resolve();
 											}
-											return Promise.reject(new Error('Ngày trả phải sau ngày mượn!'));
+											return Promise.reject(new Error('Ngày trả phải sau ngày hôm nay!'));
 										},
 									}),
 								]}
@@ -77,6 +79,7 @@ const YeuCauMuonThietBi: React.FC = () => {
 									size='large'
 									style={{ width: '100%', borderRadius: '6px' }}
 									format='MM/DD/YYYY'
+									disabledDate={(current) => current && current < moment().endOf('day')}
 								/>
 							</Form.Item>
 						</div>
@@ -114,7 +117,7 @@ const YeuCauMuonThietBi: React.FC = () => {
 							</Space>
 						</Form.Item>
 
-						{/* Cụm nút bấm */}
+						{/* Cụm nút bấm hành động */}
 						<Form.Item style={{ marginBottom: 0, marginTop: '16px' }}>
 							<Space size='middle'>
 								<Button
