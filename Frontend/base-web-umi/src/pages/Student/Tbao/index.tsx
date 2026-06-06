@@ -43,7 +43,7 @@ const ThongBaoCuaToi: React.FC = () => {
 							type='primary'
 							icon={<CheckOutlined />}
 							onClick={handleMarkAllAsRead}
-							style={{ background: '#1e293b', borderColor: '#1e293b', borderRadius: '6px', fontWeight: 500 }}
+							style={{ background: '#00b96b', borderColor: '#00b96b', borderRadius: '6px', fontWeight: 500 }}
 						>
 							Đánh dấu tất cả đã đọc
 						</Button>
@@ -63,21 +63,22 @@ const ThongBaoCuaToi: React.FC = () => {
 								key={tab.key}
 								onClick={() => setActiveTab(tab.key as any)}
 								style={{
-									padding: '16px',
+									padding: '16px 20px',
 									background: '#ffffff',
 									borderRadius: '8px',
 									border: isSelected ? '1.5px solid #1e293b' : '1px solid #e2e8f0',
 									cursor: 'pointer',
 									transition: 'all 0.2s',
 									boxShadow: isSelected ? '0 2px 8px rgba(0,0,0,0.05)' : 'none',
+									display: 'flex',
+									alignItems: 'baseline',
+									justifyContent: 'space-between',
 								}}
 							>
-								<Paragraph type='secondary' style={{ margin: 0, fontSize: '13px' }}>
+								<Text type='secondary' style={{ fontSize: '14px', margin: 0, color: '#64748b' }}>
 									{tab.label}
-								</Paragraph>
-								<Title level={3} style={{ margin: '4px 0 0 0', fontWeight: '700', color: tab.color }}>
-									{tab.count}
-								</Title>
+								</Text>
+								<span style={{ fontSize: '24px', fontWeight: 500, color: tab.color, lineHeight: 1 }}>{tab.count}</span>
 							</div>
 						);
 					})}
@@ -94,7 +95,7 @@ const ThongBaoCuaToi: React.FC = () => {
 									borderRadius: '8px',
 									border: '1px solid #e2e8f0',
 									boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-									backgroundColor: notif.isRead ? '#ffffff' : '#f8fafc', // Đổi nhẹ màu nền nếu chưa đọc để dễ phân biệt
+									backgroundColor: notif.isRead ? '#ffffff' : '#f8fafc',
 								}}
 							>
 								<div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
