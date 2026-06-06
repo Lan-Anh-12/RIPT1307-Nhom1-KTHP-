@@ -1,14 +1,14 @@
-import type { IInitialState } from './services/base/typing';
+import type { AppInitialState } from './services/login/typing';
 // import { currentRole } from './utils/ip';
 
 /**
  * @see https://umijs.org/zh-CN/plugins/plugin-access
  * */
-export default function access(initialState: IInitialState) {
+//export default function access(initialState: IInitialState) {
 	// const scopes = initialState.authorizedPermissions?.find((item) => item.rsname === currentRole)?.scopes;
-	const scopes = initialState.authorizedPermissions?.map((item) => item.scopes).flat();
+	//const scopes = initialState.authorizedPermissions?.map((item) => item.scopes).flat();
 
-	return {
+//	return {
 		// canBoQLKH: token && vaiTro && vaiTro === 'can_bo_qlkh',
 		// lanhDao: token && vaiTro && vaiTro === 'lanh_dao',
 		// sinhVienVaNhanVien: token && vaiTro && ['nhan_vien', 'sinh_vien'].includes(vaiTro),
@@ -27,8 +27,8 @@ export default function access(initialState: IInitialState) {
 		//     (vaiTro === 'Admin' || vaiTro === 'quan_tri' || vaiTro === 'nhan_vien')) ||
 		//   false,
 		// guest: (token && ((vaiTro && vaiTro === 'Guest') || !vaiTro)) || false,
-		accessFilter: (route: any) => scopes?.includes(route?.maChucNang) || false,
-		manyAccessFilter: (route: any) => route?.listChucNang?.some((role: string) => scopes?.includes(role)) || false,
+		//accessFilter: (route: any) => scopes?.includes(route?.maChucNang) || false,
+		//manyAccessFilter: (route: any) => route?.listChucNang?.some((role: string) => scopes?.includes(role)) || false,
 		// adminAccessFilter: (route: any) =>
 		//   (token && vaiTro && vaiTro === 'Admin') ||
 		//   initialState?.phanNhom?.nhom_vai_tro?.includes(route?.maChucNang) ||
@@ -60,5 +60,12 @@ export default function access(initialState: IInitialState) {
 		//     : (route: any) => {
 		//         return handlePhanNhom(initialState, route?.maChucNang) || false;
 		//       },
-	};
+//	};
+//}
+export default function access(initialState: AppInitialState | undefined) {
+  const { currentUser } = initialState ?? {};
+  return {
+    isAdmin: currentUser?.role === 'ADMIN',
+    isStudent: currentUser?.role === 'STUDENT',
+  };
 }
