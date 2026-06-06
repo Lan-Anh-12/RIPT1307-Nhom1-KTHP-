@@ -96,7 +96,7 @@ const DeviceInventory: React.FC = () => {
           type="primary" 
           icon={<PlusOutlined />} 
           onClick={() => { setSelectedRecord(null); setModalOpen(true); }}
-          style={{ backgroundColor: '#00b312', borderColor: '#00b312', borderRadius: '8px', height: '36px', fontWeight: 500 }}
+          style={{ backgroundColor: '#43c223', borderColor: '#43c223', borderRadius: '8px', height: '36px', fontWeight: 500 }}
         >
           Thêm thiết bị
         </Button>

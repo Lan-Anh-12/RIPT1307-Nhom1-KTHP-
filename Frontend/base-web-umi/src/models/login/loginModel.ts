@@ -1,18 +1,27 @@
 import { useState, useCallback } from 'react';
 import { login } from '@/services/login/api';
-import { history } from 'umi';
+import { history, useModel } from 'umi';
 import { message } from 'antd';
 
-export default function useLoginModel() {
-  // Lưu trữ thông tin user đăng nhập (bao gồm tên và quyền)
+// Định nghĩa interface trả về tường minh để giải quyết triệt để lỗi ts(7023)
+interface LoginModelReturn {
+  currentUser: { name?: string; role?: string } | null;
+  submitting: boolean;
+  handleLogin: (values: any) => Promise<boolean>;
+  handleLogout: () => Promise<void>;
+}
+
+export default function useLoginModel(): LoginModelReturn {
+  // Lưu trữ thông tin user đăng nhập cục bộ
   const [currentUser, setCurrentUser] = useState<{ name?: string; role?: string } | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
-  // Xử lý đăng nhập 
-  const handleLogin = useCallback(async (values: LoginSpace.LoginParams): Promise<boolean> => {
+  // Lấy hàm setInitialState từ hệ thống phân quyền lõi của UmiJS
+  const { setInitialState } = useModel('@@initialState');
+
+  // Xử lý đăng nhập (Nhận values: any để tránh lỗi lệch cấu trúc namespace)
+  const handleLogin = useCallback(async (values: any): Promise<boolean> => {
     setSubmitting(true);
-    
-    // 🌟 SẠCH SẼ: Không cần dùng "as any" nữa vì values đã chuẩn cấu trúc { email, password }
     const { email, password } = values;
 
     // ==========================================================================
@@ -23,29 +32,33 @@ export default function useLoginModel() {
 
     if (isMockAdmin || isMockStudent) {
       try {
-        // Tạo độ trễ ảo 800ms giả lập quá trình gọi mạng
         await new Promise((resolve) => setTimeout(resolve, 800));
 
-        // Cấu hình linh hoạt Role dựa trên tài khoản test nhập vào
         const mockToken = isMockAdmin ? 'mock-env-admin-token-2026' : 'mock-env-student-token-2026';
         const mockRole = isMockAdmin ? 'ADMIN' : 'STUDENT';
         const mockName = isMockAdmin ? 'Quản trị viên PTIT' : 'Sinh viên PTIT';
 
-        // 1. Lưu các thông tin cần thiết vào localStorage để duy trì phiên đăng nhập
+        // 1. Lưu vào localStorage duy trì phiên khi F5
         localStorage.setItem('token', mockToken);
         localStorage.setItem('role', mockRole);
         localStorage.setItem('userName', mockName);
 
-        // 2. Cập nhật vào State của Model
+        // 2. Cập nhật Model cục bộ
         setCurrentUser({ name: mockName, role: mockRole });
+
+        // 🎯 ĐỒNG BỘ RAM HỆ THỐNG: Đập tan vòng lặp vô tận
+        await setInitialState((s) => ({
+          ...s,
+          currentUser: { name: mockName, role: mockRole },
+        }));
         
         message.success(`[Test Mode] Chào mừng ${mockName} đã đăng nhập!`);
 
-        // 3. 🌟 RẼ NHÁNH ĐIỀU HƯỚNG CHO TÀI KHOẢN TEST
+        // 3. Rẽ nhánh điều hướng trực tiếp
         if (mockRole === 'ADMIN') {
           history.push('/admin/device-order');
         } else {
-          history.push('/student/borrow'); // Điều hướng trang sinh viên
+          history.push('/student/danh-sach-thiet-bi');
         }
         return true;
       } finally {
@@ -57,29 +70,33 @@ export default function useLoginModel() {
     // --- LUỒNG CHẠY GỐC KẾT NỐI VỚI BACKEND JAVA ---
     // ==========================================================================
     try {
-      // Gọi API gửi loginRequest (email, password) sang Java
       const res = await login(values);
-      
       const token = res?.token; 
-      const role = res?.role; // Nhận về "ADMIN" hoặc "STUDENT" từ DB Java
-      const name = res?.name; // Nhận về tên thực của User từ DB Java
+      const role = res?.role; 
+      const name = res?.name; 
 
       if (token) {
-        // 1. Lưu thông tin bảo mật vào hệ thống trình duyệt
         localStorage.setItem('token', token);
         localStorage.setItem('role', role || 'STUDENT');
         localStorage.setItem('userName', name || '');
 
-        // 2. Cập nhật trạng thái User hiện tại
         setCurrentUser({ name, role });
+
+        // 🎯 ĐỒNG BỘ RAM HỆ THỐNG: Áp dụng luồng thật
+        await setInitialState((s) => ({
+          ...s,
+          currentUser: {
+            name: name || 'User',
+            role: (role || 'STUDENT') as 'ADMIN' | 'STUDENT',
+          },
+        }));
         
         message.success(`Chào mừng ${name || 'bạn'} đã đăng nhập thành công!`);
 
-        // 3.  RẼ NHÁNH ĐIỀU HƯỚNG THỰC TẾ DỰA TRÊN ROLE CỦA BACKEND
         if (role === 'ADMIN') {
-          history.push('/admin/device-order'); // Admin vào khu quản lý thiết bị
+          history.push('/admin/device-order');
         } else {
-          history.push('/student/borrow');     // Sinh viên vào giao diện đăng ký mượn
+          history.push('/student/danh-sach-thiet-bi');      
         }
         return true;
       } else {
@@ -88,23 +105,25 @@ export default function useLoginModel() {
       }
     } catch (error: any) {
       console.error('Lỗi đăng nhập hệ thống:', error);
-      
       const errorMsg = error?.data?.message || 'Tài khoản hoặc mật khẩu không chính xác!';
       message.error(errorMsg);
       return false;
     } finally {
       setSubmitting(false);
     }
-  }, []);
+  }, [setInitialState]);
 
-  // Xử lý Đăng xuất / Thoát tài khoản
-  const handleLogout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    localStorage.removeItem('userName');
+  // Xử lý Đăng xuất / Thoát tài khoản mượt mà không dính 403
+  const handleLogout = useCallback(async () => {
+    // 🎯 ĐIỀU HƯỚNG TRƯỚC: Đưa về vùng an toàn (Login) trước khi hủy Token để tránh lỗi 403 ở trang Admin cũ
+    history.replace('/login');
+
+    // XÓA DỮ LIỆU SAU
+    localStorage.clear();
+    sessionStorage.clear();
     setCurrentUser(null);
-    history.push('/login');
-  }, []);
+    await setInitialState((s) => ({ ...s, currentUser: undefined }));
+  }, [setInitialState]);
 
   return {
     currentUser,

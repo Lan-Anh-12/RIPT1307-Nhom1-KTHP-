@@ -1,18 +1,25 @@
-declare namespace LoginSpace {
-  /**
-   * Cấu hình tham số gửi lên API Đăng nhập
-   */
+// src/services/login/typing.d.ts
+export declare namespace LoginSpace {
   interface LoginParams {
-    email?: string;       // private String email;
-    password?: string;    // private String password;
+    email?: string;
+    password?: string;
   }
 
-  /**
-   * Cấu hình dữ liệu nhận về từ API Đăng nhập (Response)
-   */
   interface LoginResponse {
     token?: string;
     role?: 'ADMIN' | 'STUDENT' | string;
     name?: string;
   }
+
+  interface CurrentUser {
+    name?: string;
+    role?: 'ADMIN' | 'STUDENT' | string;
+    avatar?: string;
+  }
+}
+
+// Bổ sung thêm Interface cho State để dùng chung
+export interface AppInitialState {
+  currentUser?: LoginSpace.CurrentUser;
+  permissionLoading?: boolean;
 }

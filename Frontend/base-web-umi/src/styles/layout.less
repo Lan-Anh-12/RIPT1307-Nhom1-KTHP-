@@ -54,6 +54,29 @@
         padding-left: 12px !important;
         color: white;
     }
+	li.ant-menu-item-selected {
+		width: calc(100% - 24px) !important;
+		height: 48px !important;
+		margin: 8px 12px !important;
+		padding: 0 16px !important;
+		color: #000000 !important;
+		font-weight: 600 !important;
+		line-height: 48px !important;
+		background-color: #f0f0f0 !important;
+		border-radius: 12px !important;
+		box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.05) !important;
+
+		.ant-menu-item-icon,
+		.anticon {
+			color: #000000 !important;
+		}
+
+		.ant-menu-title-content,
+		a,
+		span {
+			color: #000000 !important;
+		}
+	}
 
     // Cấu hình Menu con cấp 2 (Submenu)
     .ant-menu-submenu {
@@ -166,6 +189,8 @@
 
 .ant-layout {
     min-height: 100vh;
+	min-height: 100vh;
+	background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%) !important;
 }
 
 .ant-pro-sider.ant-layout-sider.ant-pro-sider-fixed {

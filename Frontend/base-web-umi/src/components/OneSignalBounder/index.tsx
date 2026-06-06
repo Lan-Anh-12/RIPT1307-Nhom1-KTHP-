@@ -91,7 +91,7 @@ const OneSignalBounder = (props: { children: React.ReactNode }) => {
 				}
 			}
 		}
-	}, [oneSignalId, auth.user?.access_token]);
+	}, [oneSignalId, auth?.user?.access_token]);
 
 	return <>{props.children}</>;
 };

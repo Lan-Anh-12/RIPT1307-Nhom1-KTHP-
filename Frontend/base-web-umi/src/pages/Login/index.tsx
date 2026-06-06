@@ -30,7 +30,7 @@ const LoginPage: React.FC = () => {
                   margin: 0, 
                   fontWeight: 700, 
                   fontSize: '24px', 
-                  color: '#1cff18',
+                  color: '#3dcb3b',
                   letterSpacing: '0.5px'
                 }}
               >

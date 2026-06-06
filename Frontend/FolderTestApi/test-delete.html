@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Test API Device</title>
+</head>
+<body>
+    <h2>1. Tạo thiết bị mới</h2>
+    <input type="text" id="name" placeholder="Tên thiết bị">
+    <input type="number" id="quantity" placeholder="Số lượng">
+    <button onclick="createDevice()">Tạo</button>
+
+    <hr>
+
+    <h2>2. Tìm kiếm thiết bị</h2>
+    <input type="text" id="keyword" placeholder="Nhập từ khóa...">
+    <button onclick="searchDevices()">Tìm kiếm</button>
+    <pre id="searchResult"></pre>
+
+    <hr>
+
+    <h2>3. Xóa thiết bị (Soft Delete)</h2>
+    <input type="number" id="deleteId" placeholder="Nhập ID cần xóa">
+    <button onclick="deleteDevice()">Xóa</button>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api/devices'; // Thay đổi port nếu cần
+
+        // 1. Tạo mới
+        async function createDevice() {
+            const data = {
+                name: document.getElementById('name').value,
+                quantity: parseInt(document.getElementById('quantity').value),
+                imageUrl: "test.jpg", // Dữ liệu mẫu
+                description: "Test mô tả",
+                categoryId: 1 // Đảm bảo ID này tồn tại trong DB
+            };
+            const res = await fetch(API_URL + '/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            alert('Kết quả: ' + (res.ok ? 'Thành công' : 'Thất bại'));
+        }
+
+        // 2. Tìm kiếm
+        async function searchDevices() {
+            const keyword = document.getElementById('keyword').value;
+            const res = await fetch(`${API_URL}?keyword=${keyword}`);
+            const data = await res.json();
+            document.getElementById('searchResult').innerText = JSON.stringify(data, null, 2);
+        }
+
+        // 3. Xóa
+        async function deleteDevice() {
+            const id = document.getElementById('deleteId').value;
+            const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            alert('Kết quả xóa: ' + data);
+        }
+    </script>
+</body>
+</html>

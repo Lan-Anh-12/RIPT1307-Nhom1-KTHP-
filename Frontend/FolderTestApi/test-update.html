@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Update Device</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 400px; }
+        input { display: block; margin: 10px 0; width: 100%; padding: 8px; }
+        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h2>Cập nhật thiết bị (PUT)</h2>
+    <input type="number" id="id" placeholder="ID thiết bị cần sửa">
+    <input type="text" id="name" placeholder="Tên mới">
+    <input type="number" id="categoryId" placeholder="Category ID">
+    <input type="text" id="imageUrl" placeholder="Image URL">
+    <input type="number" id="quantity" placeholder="Số lượng mới">
+    <input type="text" id="description" placeholder="Mô tả mới">
+    
+    <button onclick="updateDevice()">Gửi yêu cầu Update</button>
+
+    <script>
+        async function updateDevice() {
+            const id = document.getElementById('id').value;
+            const data = {
+                name: document.getElementById('name').value,
+                categoryId: parseInt(document.getElementById('categoryId').value),
+                imageUrl: document.getElementById('imageUrl').value,
+                quantity: parseInt(document.getElementById('quantity').value),
+                description: document.getElementById('description').value
+            };
+
+            const res = await fetch(`http://localhost:8080/api/devices/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                alert('Cập nhật thành công!');
+            } else {
+                alert('Cập nhật thất bại. Kiểm tra lại ID hoặc dữ liệu!');
+            }
+        }
+    </script>
+</body>
+</html>
