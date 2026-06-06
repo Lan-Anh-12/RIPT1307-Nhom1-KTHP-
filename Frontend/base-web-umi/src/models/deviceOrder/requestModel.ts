@@ -37,7 +37,7 @@ export default function useRequestModel() {
       // Lọc local theo Tab trạng thái hiển thị trên giao diện Antd
       if (filters?.status && filters.status !== 'ALL') {
         const upperStatus = filters.status.toUpperCase();
-        setDisplayedRequests(dataList.filter((item) => item.status?.toUpperCase() === upperStatus));
+        setDisplayedRequests(dataList.filter((item: DeviceRequest.RequestItem) => item.status?.toUpperCase() === upperStatus));
       } else {
         setDisplayedRequests(dataList);
       }
