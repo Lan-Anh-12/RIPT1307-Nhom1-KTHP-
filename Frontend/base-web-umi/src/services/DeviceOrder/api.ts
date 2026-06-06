@@ -1,48 +1,61 @@
-// Giả định dữ liệu ban đầu lưu ở Front-End để test
-let mockRequests: API.RequestItem[] = [
-  {
-    id: 'REQ-2025-001',
-    studentName: 'Nguyễn Văn An',
-    studentCode: 'SV001',
-    studentEmail: 'an.nv@student.edu.vn',
-    totalRequests: 5,
-    deviceName: 'Máy chiếu Epson EB-X51',
-    quantity: 1,
-    requestDate: '09/05/2025',
-    borrowDate: '10/05/2025',
-    returnDate: '17/05/2025',
-    actualReturnDate: '17/05/2025',
-    status: 'da_tra',
-  },
-  {
-    id: 'REQ-2026-002',
-    studentName: 'Trần Thị Bích',
-    studentCode: 'SV002',
-    studentEmail: 'bich.tt@student.edu.vn',
-    totalRequests: 2,
-    deviceName: 'Micro không dây Sony',
-    quantity: 2,
-    requestDate: '24/05/2026',
-    borrowDate: '25/05/2026',
-    returnDate: '01/06/2026',
-    status: 'cho_duyet',
-  },
-];
+import { request } from 'umi';
 
-export async function getRequests(): Promise<{ data: API.RequestItem[] }> {
-  return { data: [...mockRequests] };
+const BASE_URL = 'https://ript1307-nhom1-kthp.onrender.com';
+
+/**  1. API Lấy tất cả yêu cầu (Admin xem danh sách tổng)
+ * GET /api/requests/all
+ */
+export async function getOrderList() {
+  return request<DeviceRequest.RequestItem[]>(`${BASE_URL}/api/requests/all`, {
+    method: 'GET',
+  });
 }
 
-export async function updateRequestStatus(params: API.UpdateStatusParams): Promise<{ success: boolean }> {
-  mockRequests = mockRequests.map((item) => {
-    if (item.id === params.id) {
-      return {
-        ...item,
-        status: params.status,
-        actualReturnDate: params.actualReturnDate || item.actualReturnDate,
-      };
-    }
-    return item;
+/**  2. API Tìm kiếm yêu cầu theo tên sinh viên (Thanh tìm kiếm chính)
+ * GET /api/requests/search?name=...
+ */
+export async function searchRequestsByName(name: string) {
+  return request<DeviceRequest.RequestItem[]>(`${BASE_URL}/api/requests/search`, {
+    method: 'GET',
+    params: { name },
   });
-  return { success: true };
+}
+
+/**  3. API Tìm kiếm lịch sử mượn theo từ khóa
+ * GET /api/requests/search-history?keyword=...
+ */
+export async function searchHistory(keyword: string) {
+  return request<DeviceRequest.RequestItem[]>(`${BASE_URL}/api/requests/search-history`, {
+    method: 'GET',
+    params: { keyword },
+  });
+}
+
+/**  4. API Lấy chi tiết 1 yêu cầu theo ID (Dùng cho Popup xem chi tiết hoặc Popup duyệt)
+ * GET /api/requests/{id}
+ */
+export async function getRequestById(id: number | string) {
+  return request<DeviceRequest.RequestItem>(`${BASE_URL}/api/requests/${id}`, {
+    method: 'GET',
+  });
+}
+
+/** 5. API Cập nhật trạng thái đơn mượn/trả (Khớp Map<String, String> của Java)
+ * PUT /api/requests/{id}/status
+ * body gửi lên: { "status": "APPROVED" | "REJECTED" | "RETURNED" }
+ */
+export async function updateOrderStatus(idRequest: number | string, status: 'APPROVED' | 'REJECTED' | 'RETURNED') {
+  return request<any>(`${BASE_URL}/api/requests/${idRequest}/status`, {
+    method: 'PUT',
+    data: { status },
+  });
+}
+
+/**  6. API Lấy toàn bộ danh sách thông báo tự động từ hệ thống (Để Admin lọc ra thông báo quá hạn)
+ * GET /api/notifications
+ */
+export async function getAllNotifications() {
+  return request<DeviceNotification.NotificationItem[]>(`${BASE_URL}/api/notifications`, {
+    method: 'GET',
+  });
 }

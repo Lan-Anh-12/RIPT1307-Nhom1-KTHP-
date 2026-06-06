@@ -1,25 +1,25 @@
-declare namespace API {
-  type RequestStatus = 'cho_duyet' | 'da_duyet' | 'da_tra' | 'qua_han' | 'tu_choi';
-
+declare namespace DeviceRequest {
   interface RequestItem {
-    id: string; // Mã yêu cầu
-    studentName: string;
-    studentEmail: string;
-    studentCode: string;
-    totalRequests: number; // Tổng yêu cầu từ trước đến nay [cite: 7]
-    deviceName: string; // Tên thiết bị [cite: 6]
-    quantity: number; // Số lượng [cite: 6]
-    requestDate: string; // Ngày gửi yêu cầu [cite: 6]
-    borrowDate: string; // Ngày mượn [cite: 6]
-    returnDate: string; // Ngày trả (hạn trả) [cite: 6]
-    actualReturnDate?: string; // Ngày trả thực tế [cite: 6]
-    status: RequestStatus; // Trạng thái [cite: 6]
+    idRequest: number;          // Mã yêu cầu (Long bên Java)
+    studentId: number;          // Mã sinh viên
+    studentName: string;        // Tên sinh viên mượn đồ
+    device: string;             // Tên thiết bị mượn
+    quantity: number;           // Số lượng mượn
+    requestDate: string;        // Ngày mượn (LocalDate dạng YYYY-MM-DD)
+    expectedReturnDate: string; // Ngày hẹn trả
+    actualReturnDate?: string;  // Ngày thực tế trả đồ
+    status: string;             // Trạng thái yêu cầu (PENDING, APPROVED, REJECTED, RETURNED)
+    email?: string;             // Email sinh viên
+    totalRequest?: number;
   }
+}
 
-  interface UpdateStatusParams {
-    id: string;
-    status: RequestStatus;
-    rejectReason?: string;
-    actualReturnDate?: string;
+declare namespace DeviceNotification {
+  interface NotificationItem {
+    id: number;           // Khóa chính
+    userId: number;       // ID của sinh viên nhận thông báo
+    title: string;        // Tiêu đề thông báo
+    content: string;      // Nội dung thông báo tự động sinh ra từ hệ thống
+    isRead: boolean;      // Trạng thái sinh viên đã đọc hay chưa
   }
 }

@@ -1,6 +1,7 @@
-// Frontend/base-web-umi/config/routes.ts
+﻿// Frontend/base-web-umi/config/routes.ts
 
 export default [
+	// 1. TRANG ĐĂNG NHẬP (Gộp chung chuẩn login)
 	{
 		path: '/user',
 		layout: false,
@@ -17,9 +18,15 @@ export default [
 			},
 		],
 	},
+	{
+		path: '/login',
+		name: 'Đăng nhập',
+		component: './Login',
+		layout: false,
+		hideInMenu: true,
+	},
 
-	///////////////////////////////////
-	// MENU CHO TRANG USER (CỦA BẠN)
+	// 2. MENU CHO TRANG USER (CỦA BẠN)
 	{
 		path: '/student/danh-sach-thiet-bi',
 		name: 'Danh sách thiết bị',
@@ -51,23 +58,40 @@ export default [
 		hideInMenu: true,
 	},
 
-	///////////////////////////////////
-	// MENU CHO TRANG ADMIN (CỦA NGỌC)
+	// 3. MENU CHO TRANG ADMIN (CỦA NGỌC)
 	{
-		path: '/admin/device-order',
-		name: 'Quản lý yêu cầu',
-		icon: 'table',
-		component: './Admin/DeviceOrder/index',
-	},
-	{
-		path: '/admin/device-order/form',
-		name: 'Xử lý yêu cầu',
-		component: './Admin/DeviceOrder/form',
-		hideInMenu: true,
+		path: '/admin',
+		name: 'Hệ thống Quản lý',
+		flatMenu: true,
+		routes: [
+			{
+				path: '/admin/device-order',
+				name: 'Quản lý yêu cầu',
+				icon: 'Table',
+				component: './Admin/DeviceOrder/index',
+			},
+			{
+				path: '/admin/device-order/form',
+				name: 'Xử lý yêu cầu',
+				component: './Admin/DeviceOrder/form',
+				hideInMenu: true,
+			},
+			{
+				path: '/admin/device-inventory',
+				name: 'Quản lý kho thiết bị',
+				icon: 'Database',
+				component: './Admin/DeviceInventory',
+			},
+			{
+				path: '/admin/dashboard',
+				name: 'Thống kê',
+				icon: 'Dashboard',
+				component: './Admin/Dashboard',
+			},
+		],
 	},
 
-	///////////////////////////////////
-	// ĐỊNH TUYẾN THÔNG BÁO NGẦM & HỆ THỐNG
+	// 4. ĐỊNH TUYẾN THÔNG BÁO NGẦM & HỆ THỐNG
 	{
 		path: '/notification',
 		routes: [
@@ -92,7 +116,7 @@ export default [
 	},
 	{
 		path: '/',
-		redirect: '/danh-sach-thiet-bi', // Chỉnh lại mặc định vào trang danh sách của user (hoặc /admin tùy bạn muốn)
+		redirect: '/student/danh-sach-thiet-bi',
 	},
 	{
 		path: '/403',
