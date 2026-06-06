@@ -24,9 +24,7 @@ export default function useLoginModel(): LoginModelReturn {
     setSubmitting(true);
     const { email, password } = values;
 
-    // ==========================================================================
-    // 🌟 KHU VỰC ĐĂNG NHẬP TẠM THỜI (TEST MODE - BYPASS KHI BACKEND CHƯA CÓ)
-    // ==========================================================================
+    //  ĐĂNG NHẬP TẠM THỜI (TEST MODE - BYPASS KHI BACKEND CHƯA CÓ)
     const isMockAdmin = email === 'admin@ptit.edu.vn' && password === 'admin123';
     const isMockStudent = email === 'sv@student.ptit.edu.vn' && password === '123456';
 
@@ -46,7 +44,6 @@ export default function useLoginModel(): LoginModelReturn {
         // 2. Cập nhật Model cục bộ
         setCurrentUser({ name: mockName, role: mockRole });
 
-        // 🎯 ĐỒNG BỘ RAM HỆ THỐNG: Đập tan vòng lặp vô tận
         await setInitialState((s) => ({
           ...s,
           currentUser: { name: mockName, role: mockRole },
@@ -66,9 +63,7 @@ export default function useLoginModel(): LoginModelReturn {
       }
     }
 
-    // ==========================================================================
-    // --- LUỒNG CHẠY GỐC KẾT NỐI VỚI BACKEND JAVA ---
-    // ==========================================================================
+    //  LUỒNG CHẠY GỐC KẾT NỐI VỚI BACKEND JAVA 
     try {
       const res = await login(values);
       const token = res?.token; 
@@ -82,7 +77,6 @@ export default function useLoginModel(): LoginModelReturn {
 
         setCurrentUser({ name, role });
 
-        // 🎯 ĐỒNG BỘ RAM HỆ THỐNG: Áp dụng luồng thật
         await setInitialState((s) => ({
           ...s,
           currentUser: {
@@ -115,7 +109,7 @@ export default function useLoginModel(): LoginModelReturn {
 
   // Xử lý Đăng xuất / Thoát tài khoản mượt mà không dính 403
   const handleLogout = useCallback(async () => {
-    // 🎯 ĐIỀU HƯỚNG TRƯỚC: Đưa về vùng an toàn (Login) trước khi hủy Token để tránh lỗi 403 ở trang Admin cũ
+    //  ĐIỀU HƯỚNG TRƯỚC: Đưa về vùng an toàn (Login) trước khi hủy Token để tránh lỗi 403 ở trang Admin cũ
     history.replace('/login');
 
     // XÓA DỮ LIỆU SAU
