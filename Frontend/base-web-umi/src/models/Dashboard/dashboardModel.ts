@@ -4,44 +4,37 @@ import { getDashboardStatistics } from '@/services/Dashboard/api';
 export default function useDeviceDashboardModel() {
   const [loading, setLoading] = useState<boolean>(false);
 
-  // 1. Số liệu của 4 ô Card tổng quan trên cùng (Sử dụng Type định nghĩa sẵn)
+  // 1. Số liệu của 4 ô Card tổng quan trên cùng (Mặc định bằng 0)
   const [summaryData, setSummaryData] = useState<DashboardAPI.SummaryData>({
-    totalRequests: 8,
-    approved: 2,
-    overdue: 1,
-    lowStock: 3,
+    totalRequests: 0,
+    approved: 0,
+    overdue: 0,
+    lowStock: 0,
   });
 
   // 2. Mảng dữ liệu cho biểu đồ Cột đứng
-  const [topDevicesData, setTopDevicesData] = useState<DashboardAPI.TopDeviceItem[]>([
-    { deviceName: 'Máy chiếu Epson', count: 2 },
-    { deviceName: 'Loa di động JBL', count: 2 },
-    { deviceName: 'Màn hình LED', count: 2 },
-    { deviceName: 'Máy tính xách tay', count: 1 },
-    { deviceName: 'Bảng tương tác', count: 1 },
-  ]);
+  const [topDevicesData, setTopDevicesData] = useState<DashboardAPI.TopDeviceItem[]>([]);
 
   // 3. Mảng dữ liệu cho biểu đồ Donut
-  const [statusDistributionData, setStatusDistributionData] = useState<DashboardAPI.StatusDistributionItem[]>([
-    { status: 'Đã trả', value: 3 },
-    { status: 'Đã duyệt', value: 2 },
-    { status: 'Chờ duyệt', value: 3 },
-    { status: 'Từ chối', value: 1 },
-    { status: 'Quá hạn', value: 1 },
-  ]);
+  const [statusDistributionData, setStatusDistributionData] = useState<DashboardAPI.StatusDistributionItem[]>([]);
 
-  /** 🔄 Hàm fetch dữ liệu kết nối từ Service */
+  /** Hàm fetch dữ liệu kết nối trực tiếp với Endpoint Backend */
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await getDashboardStatistics();
-      if (res?.success && res?.data) {
-        setSummaryData(res.data.summary);
-        setTopDevicesData(res.data.topDevices);
-        setStatusDistributionData(res.data.statusDistribution);
+      // Gọi Service API và ép kiểu về DashboardDataResponse của bạn
+      const res = (await getDashboardStatistics()) as DashboardAPI.DashboardDataResponse;
+
+      // Xử lý khi Backend phản hồi thành công và có dữ liệu
+      if (res && res.success && res.data) {
+        const { summary, topDevices, statusDistribution } = res.data;
+
+        setSummaryData(summary || { totalRequests: 0, approved: 0, overdue: 0, lowStock: 0 });
+        setTopDevicesData(topDevices || []);
+        setStatusDistributionData(statusDistribution || []);
       }
     } catch (error) {
-      console.log('Chưa bật server API backend, hệ thống tiếp tục duy trì dữ liệu Mock Test.');
+      console.error(' Lỗi kết nối hoặc Backend chưa bật API Dashboard:', error);
     } finally {
       setLoading(false);
     }

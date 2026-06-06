@@ -5,11 +5,7 @@ import { request } from 'umi';
  * @returns Trả về Promise chứa cấu trúc dữ liệu của DashboardDataResponse từ Namespace
  */
 export async function getDashboardStatistics() {
-  // Sử dụng trực tiếp kiểu dữ liệu từ namespace DashboardAPI mà không cần import
-  return request<DashboardAPI.DashboardDataResponse>('/api/dashboard/statistics', {
+  return request<DashboardAPI.DashboardDataResponse>('/api/statistics', {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
   });
 }

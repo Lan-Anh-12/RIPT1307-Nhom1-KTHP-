@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useModel } from 'umi';
-import { Space,Modal, Form, Input, InputNumber, Select, Upload, Button } from 'antd';
+import { Modal, Form, Input, InputNumber, Select, Upload, Button } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 
 interface DeviceFormModalProps {
@@ -11,38 +11,38 @@ interface DeviceFormModalProps {
 
 const DeviceFormModal: React.FC<DeviceFormModalProps> = ({ open, onClose, record }) => {
   const [form] = Form.useForm();
-  const { handleAddDevice, handleUpdateDevice } = useModel('deviceInventory.deviceInventoryModel');
-  const isEdit = !!record; // Đổi sang kiểu boolean để kiểm tra xem đang là chế độ Sửa hay Thêm mới
+  const { handleAddDevice, handleUpdateDevice, categories } = useModel('deviceInventory.deviceInventoryModel');
+  const isEdit = !!record; 
 
-  // Lắng nghe sự kiện mở Modal. Nếu sửa thì đổ dữ liệu cũ vào, nếu thêm mới thì xóa trống form.
   useEffect(() => {
     if (open) {
       if (record) {
-        form.setFieldsValue(record);
+        form.setFieldsValue({
+          name: record.name,
+          categoryId: record.category?.id || record.categoryId, // Bốc ID từ object danh mục lồng nhau
+          stock: record.quantity,                                // Bốc trường quantity từ DB đổ vào ô nhập stock
+          description: record.description,
+        });
       } else {
         form.resetFields();
       }
     }
   }, [open, record, form]);
 
-  // Click nút Xác nhận ở Modal
   const handleSubmit = async () => {
     try {
-      const values = await form.validateFields(); // Kiểm tra xem người dùng đã điền đủ các ô bắt buộc chưa
+      const values = await form.validateFields(); 
       let success = false;
       
       if (isEdit && record) {
-        // Nếu là sửa: Truyền thêm link ảnh cũ (record.image) đề phòng người dùng giữ nguyên ảnh cũ không đổi
-        success = await handleUpdateDevice(record.id, values, record.image);
+        success = await handleUpdateDevice(record.id, values, record.imageUrl);
       } else {
         success = await handleAddDevice(values);
       }
 
-      if (success) {
-        onClose(); // Lưu thành công thì đóng popup lại
-      }
+      if (success) onClose();
     } catch (error) {
-      console.log('Validate form lỗi:', error);
+      console.log('Validate lỗi:', error);
     }
   };
 
@@ -55,56 +55,36 @@ const DeviceFormModal: React.FC<DeviceFormModalProps> = ({ open, onClose, record
       okText="Xác nhận"
       cancelText="Hủy"
       width={540}
-      bodyStyle={{ padding: '24px 32px' }}
     >
-      <Form form={form} layout="vertical" initialValues={{ status: 'con_hang', stock: 1, total: 1 }}>
-        
-        {/* TÊN THIẾT BỊ */}
-        <Form.Item label="Tên thiết bị" name="name" rules={[{ required: true, message: 'Vui lòng nhập tên thiết bị!' }]}>
+      <Form form={form} layout="vertical" initialValues={{ stock: 1 }}>
+        {/* Ô NHẬP TÊN */}
+        <Form.Item label="Tên thiết bị" name="name" rules={[{ required: true, message: 'Vui lòng nhập tên!' }]}>
           <Input placeholder="Ví dụ: Máy chiếu Epson EB-X51" style={{ borderRadius: '8px' }} />
         </Form.Item>
 
-        {/* DANH MỤC */}
-        <Form.Item label="Danh mục thiết bị" name="category" rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}>
-          <Select 
-            placeholder="Chọn danh mục" style={{ borderRadius: '8px' }} dropdownStyle={{ borderRadius: '8px' }}
-            options={[
-              { value: 'Máy chiếu', label: 'Máy chiếu' },
-              { value: 'Micro', label: 'Micro' },
-              { value: 'Khác', label: 'Khác' },
-
-            ]}
-          />
+        {/* Ô CHỌN DANH MỤC CỐ ĐỊNH THEO ID SỐ CỦA DB */}
+        <Form.Item label="Danh mục thiết bị" name="categoryId" rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}>
+          <Select placeholder="Chọn danh mục" style={{ borderRadius: '8px' }} options={categories} />
         </Form.Item>
 
-        {/* KHỐI SỐ LƯỢNG (Xếp song song trên 1 hàng ngang) */}
-        <div style={{ display: 'flex', gap: '16px' }}>
-          <Form.Item label="Số lượng tồn kho" name="stock" rules={[{ required: true, message: 'Nhập số lượng tồn!' }]} style={{ flex: 1 }}>
-            <InputNumber min={0} style={{ width: '100%', borderRadius: '8px' }} />
-          </Form.Item>
-        </div>
-
-        {/* TÌNH TRẠNG */}
-        <Form.Item label="Tình trạng" name="status">
-          <Select style={{ borderRadius: '8px' }} dropdownStyle={{ borderRadius: '8px' }} options={[
-            { value: 'con_hang', label: 'Còn hàng' },
-            { value: 'het_hang', label: 'Hết hàng' },
-          ]} />
+        {/* Ô NHẬP SỐ LƯỢNG */}
+        <Form.Item label="Số lượng tồn kho" name="stock" rules={[{ required: true, message: 'Nhập số lượng!' }]}>
+          <InputNumber min={0} style={{ width: '100%', borderRadius: '8px' }} />
         </Form.Item>
-
-        {/* NÚT TẢI ẢNH */}
-        <Form.Item name="imageFile" style={{ marginBottom: '24px' }}>
-          <Space size="middle" align="center">
-            <span style={{ color: 'rgba(0, 0, 0, 0.85)', fontSize: '14px' }}>Hình ảnh thiết bị</span>
-            <Upload maxCount={1} beforeUpload={() => false} listType="picture">
-              <Button icon={<UploadOutlined />} style={{ borderRadius: '20px' }} />
-            </Upload>
-          </Space>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
+        <span style={{lineHeight: '32px'}}>
+          Hình ảnh thiết bị
+        </span>
+        <Form.Item name="imageFile" style={{ margin: 0, display: 'inline-block' , transform: 'translateY(4px)'}}>
+          <Upload maxCount={1} beforeUpload={() => false} listType="picture">
+            <Button icon={<UploadOutlined />} style={{ borderRadius: '6px' }}>Chọn ảnh</Button>
+          </Upload>
         </Form.Item>
+      </div>
 
-        {/* MÔ TẢ CHI TIẾT */}
+        {/* Ô NHẬP MÔ TẢ */}
         <Form.Item label="Mô tả chi tiết" name="description">
-          <Input.TextArea rows={3} placeholder="Nhập thông số kỹ thuật, ghi chú phòng học..." style={{ borderRadius: '8px' }} />
+          <Input.TextArea rows={3} placeholder="Nhập thông số kỹ thuật..." style={{ borderRadius: '8px' }} />
         </Form.Item>
       </Form>
     </Modal>

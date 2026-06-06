@@ -1,5 +1,6 @@
 import Footer from '@/components/Footer';
 import RightContent from '@/components/RightContent';
+import { LogoutOutlined } from '@ant-design/icons'; // 🌟 Import icon Đăng xuất
 import { notification } from 'antd';
 import 'moment/locale/vi';
 import type { RequestConfig, RunTimeLayoutConfig } from 'umi';
@@ -17,9 +18,9 @@ import type { IInitialState } from './services/base/typing';
 import './styles/global.less';
 import { currentRole } from './utils/ip';
 
-/**  loading */
+/** loading */
 export const initialStateConfig = {
-	loading: <></>,
+    loading: <></>,
 };
 
 /**
@@ -27,9 +28,9 @@ export const initialStateConfig = {
  * // Tobe removed
  * */
 export async function getInitialState(): Promise<IInitialState> {
-	return {
-		permissionLoading: true,
-	};
+    return {
+        permissionLoading: true,
+    };
 }
 
 // Tobe removed
@@ -39,90 +40,125 @@ const authHeaderInterceptor = (url: string, options: RequestOptionsInit) => ({})
  * @see https://beta-pro.ant.design/docs/request-cn
  */
 export const request: RequestConfig = {
-	errorHandler: (error: ResponseError) => {
-		const { messages } = getIntl(getLocale());
-		const { response } = error;
+    errorHandler: (error: ResponseError) => {
+        const { messages } = getIntl(getLocale());
+        const { response } = error;
 
-		if (response && response.status) {
-			const { status, statusText, url } = response;
-			const requestErrorMessage = messages['app.request.error'];
-			const errorMessage = `${requestErrorMessage} ${status}: ${url}`;
-			const errorDescription = messages[`app.request.${status}`] || statusText;
-			notification.error({
-				message: errorMessage,
-				description: errorDescription,
-			});
-		}
+        if (response && response.status) {
+            const { status, statusText, url } = response;
+            const requestErrorMessage = messages['app.request.error'];
+            const errorMessage = `${requestErrorMessage} ${status}: ${url}`;
+            const errorDescription = messages[`app.request.${status}`] || statusText;
+            notification.error({
+                message: errorMessage,
+                description: errorDescription,
+            });
+        }
 
-		if (!response) {
-			notification.error({
-				description: 'Yêu cầu gặp lỗi',
-				message: 'Bạn hãy thử lại sau',
-			});
-		}
-		throw error;
-	},
-	requestInterceptors: [authHeaderInterceptor],
+        if (!response) {
+            notification.error({
+                description: 'Yêu cầu gặp lỗi',
+                message: 'Bạn hãy thử lại sau',
+            });
+        }
+        throw error;
+    },
+    requestInterceptors: [authHeaderInterceptor],
 };
 
 // ProLayout  https://procomponents.ant.design/components/layout
-export const layout: RunTimeLayoutConfig = ({ initialState }) => {
-	return {
-		unAccessible: (
-			<OIDCBounder>
-				<TechnicalSupportBounder>
-					<NotAccessible />
-				</TechnicalSupportBounder>
-			</OIDCBounder>
-		),
-		noFound: <NotFoundContent />,
-		rightContentRender: () => <RightContent />,
-		disableContentMargin: false,
+export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
+    return {
+        unAccessible: (
+            <OIDCBounder>
+                <TechnicalSupportBounder>
+                    <NotAccessible />
+                </TechnicalSupportBounder>
+            </OIDCBounder>
+        ),
+        noFound: <NotFoundContent />,
+        disableContentMargin: false,
+        footerRender: () => <Footer />,
 
-		footerRender: () => <Footer />,
+        rightContentRender: () => (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingRight: '16px' }}>
+                <RightContent />
+                <div 
+                    className="header-logout-minimal"
+                    title="Đăng xuất" // Hiện chữ "Đăng xuất" nhỏ khi di chuột vào icon
+                    onClick={async () => {
+                        // 1. Xóa dữ liệu phiên làm việc
+                        localStorage.removeItem('token');
+                        sessionStorage.clear();
 
-		onPageChange: () => {
-			if (initialState?.currentUser) {
-				const { location } = history;
-				const isUncheckPath = unCheckPermissionPaths.some((path) => window.location.pathname.includes(path));
+                        // 2. Reset trạng thái hệ thống
+                        if (setInitialState) {
+                            await setInitialState((s) => ({
+                                ...s,
+                                currentUser: undefined,
+                                authorizedPermissions: undefined,
+                            }));
+                        }
+                        
+                        // 3. Chuyển hướng về trang Login
+                        notification.success({ message: 'Đăng xuất thành công!' });
+                        history.replace('/login');
+                    }}
+                >
+                    <LogoutOutlined />
+                </div>
+            </div>
+        ),
 
-				if (location.pathname === '/') {
-					history.replace('/dashboard');
-				} else if (
-					!isUncheckPath &&
-					currentRole &&
-					initialState?.authorizedPermissions?.length &&
-					!initialState?.authorizedPermissions?.find((item) => item.rsname === currentRole)
-				)
-					history.replace('/403');
-			}
-		},
+        onPageChange: () => {
+            if (initialState?.currentUser) {
+                const { location } = history;
+                const isUncheckPath = unCheckPermissionPaths.some((path) => window.location.pathname.includes(path));
 
-		menuItemRender: (item: any, dom: any) => (
-			<a
-				className='not-underline'
-				key={item?.path}
-				href={item?.path}
-				onClick={(e) => {
-					e.preventDefault();
-					history.push(item?.path ?? '/');
-				}}
-				style={{ display: 'block' }}
-			>
-				{dom}
-			</a>
-		),
+                if (location.pathname === '/') {
+                    history.replace('/dashboard');
+                } else if (
+                    !isUncheckPath &&
+                    currentRole &&
+                    initialState?.authorizedPermissions?.length &&
+                    !initialState?.authorizedPermissions?.find((item) => item.rsname === currentRole)
+                )
+                    history.replace('/403');
+            }
+        },
 
-		childrenRender: (dom) => (
-			<OIDCBounder>
-				<ErrorBoundary>
-					{/* <TechnicalSupportBounder> */}
-					<OneSignalBounder>{dom}</OneSignalBounder>
-					{/* </TechnicalSupportBounder> */}
-				</ErrorBoundary>
-			</OIDCBounder>
-		),
-		menuHeaderRender: undefined,
-		...initialState?.settings,
-	};
+        menuItemRender: (item: any, dom: any) => {
+            return (
+                <a
+                    className='not-underline custom-menu-item-link'
+                    key={item?.path}
+                    href={item?.path}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        history.push(item?.path ?? '/');
+                    }}
+                >
+                    {dom}
+                </a>
+            );
+        },
+
+        // Xóa hoàn toàn mảng links cũ ở sidebar nếu có
+        links: [],
+
+        // Khóa chiều rộng khi thu gọn về 48px chuẩn
+        collapsedWidth: 48,
+
+        childrenRender: (dom) => (
+            <OIDCBounder>
+                <ErrorBoundary>
+                    {/* <TechnicalSupportBounder> */}
+                    <OneSignalBounder>{dom}</OneSignalBounder>
+                    {/* </TechnicalSupportBounder> */}
+                </ErrorBoundary>
+            </OIDCBounder>
+        ),
+        menuHeaderRender: undefined,
+        ...initialState?.settings,
+    };
 };

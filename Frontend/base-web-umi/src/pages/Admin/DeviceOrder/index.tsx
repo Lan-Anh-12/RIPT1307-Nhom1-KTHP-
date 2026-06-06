@@ -2,72 +2,118 @@ import React, { useEffect, useState } from 'react';
 import { useModel } from 'umi';
 import { Table, Input, Select, Tag, Button } from 'antd';
 import { SearchOutlined, EyeOutlined } from '@ant-design/icons';
-// Import file component DetailModal gốc của bạn vào đây
+import NotificationBell from './notify';
 import DetailModal from './form'; 
 
 const DeviceOrder: React.FC = () => {
-  const { requests, loading, fetchRequests, handleUpdateStatus } = useModel('deviceOrder.requestModel');
+  // Gọi các trạng thái và hàm từ Model (Đảm bảo đường dẫn namespace 'deviceOrder.requestModel' khớp với config của bạn)
+  const { 
+    requests, 
+    loading, 
+    currentRequest, 
+    fetchRequests, 
+    fetchRequestDetail, 
+    handleUpdateStatus 
+  } = useModel('deviceOrder.requestModel');
 
   const [searchText, setSearchText] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   
-  // Trạng thái đóng/mở Modal và lưu bản ghi đang chọn chi tiết
+  // Trạng thái đóng/mở Modal chi tiết
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedRecord, setSelectedRecord] = useState<any>(null);
 
+  // Tải danh sách yêu cầu lần đầu tiên khi mở trang
   useEffect(() => {
-    fetchRequests();
+    fetchRequests({ keyword: searchText, status: statusFilter });
   }, [fetchRequests]);
 
   const handleSearch = () => {
     fetchRequests({ keyword: searchText, status: statusFilter });
   };
 
-  // Mở Popup khi click xem chi tiết đơn
-  const handleOpenDetails = (record: any) => {
-    setSelectedRecord(record);
+  // 🔍 Mở Popup khi click xem chi tiết đơn - Kích hoạt API lấy từ Database qua mã idRequest thật
+  const handleOpenDetails = async (record: DeviceRequest.RequestItem) => {
+    if (fetchRequestDetail) {
+      await fetchRequestDetail(record.idRequest);
+    }
     setIsModalOpen(true);
   };
 
+  // 📋 Cấu hình các cột của bảng hiển thị - Đã map chuẩn 100% trường dữ liệu Java DTO
   const columns = [
-    { title: 'Mã yêu cầu', dataIndex: 'id', key: 'id', width: 100, align: 'center' as const },
+    { 
+      title: 'Mã yêu cầu', 
+      dataIndex: 'idRequest', 
+      key: 'idRequest', 
+      width: 110, 
+      align: 'center' as const 
+    },
     {
-      title: 'Sinh viên yêu cầu', key: 'student',
-      render: (_: any, record: any) => (
+      title: 'Sinh viên yêu cầu', 
+      key: 'student',
+      render: (_: any, record: DeviceRequest.RequestItem) => (
         <div>
           <b style={{ color: '#262626' }}>{record.studentName}</b>
-          <div style={{ fontSize: '12px', color: '#8c8c8c' }}>{record.studentCode}</div>
+          <div style={{ fontSize: '12px', color: '#8c8c8c' }}>ID Sinh viên: {record.studentId}</div>
         </div>
       )
     },
-    { title: 'Thiết bị mượn', dataIndex: 'deviceName', key: 'deviceName' },
-    { title: 'SL', dataIndex: 'quantity', key: 'quantity', width: 90, align: 'center' as const },
-    { title: 'Ngày mượn', dataIndex: 'borrowDate', key: 'quantity', align: 'center' as const },
-    { title: 'Hạn trả ', dataIndex: 'returnDate', key: 'returnDate', align: 'center' as const },
+    { 
+      title: 'Thiết bị mượn', 
+      dataIndex: 'device', 
+      key: 'device',
+      render: (text: string) => <span style={{ fontWeight: 500 }}>{text}</span>
+    },
+    { 
+      title: 'SL', 
+      dataIndex: 'quantity', 
+      key: 'quantity', 
+      width: 80, 
+      align: 'center' as const 
+    },
+    { 
+      title: 'Ngày mượn', 
+      dataIndex: 'requestDate', 
+      key: 'requestDate', 
+      align: 'center' as const 
+    }, 
+    { 
+      title: 'Hạn trả dự kiến', 
+      dataIndex: 'expectedReturnDate', 
+      key: 'expectedReturnDate', 
+      align: 'center' as const 
+    },
     {
-      title: 'Trạng thái', dataIndex: 'status', key: 'status', align: 'center' as const,
+      title: 'Trạng thái', 
+      dataIndex: 'status', 
+      key: 'status', 
+      align: 'center' as const,
       render: (status: string) => {
         const statusMap: Record<string, { color: string; text: string }> = {
-          'cho_duyet': { color: 'warning', text: 'Chờ duyệt' },
-          'da_duyet': { color: 'processing', text: 'Đã duyệt' },
-          'da_tra': { color: 'success', text: 'Đã trả' },
-          'tu_choi': { color: 'error', text: 'Từ chối' },
-          'qua_han': { color: 'magenta', text: 'Quá hạn' },
+          'PENDING': { color: 'warning', text: 'Chờ duyệt' },
+          'APPROVED': { color: 'processing', text: 'Đã duyệt' },
+          'RETURNED': { color: 'success', text: 'Đã trả' },
+          'REJECTED': { color: 'error', text: 'Từ chối' },
+          'OVERDUE': { color: 'magenta', text: 'Quá hạn' }, // Backend quét gửi thông báo quá hạn tự động
         };
-        const config = statusMap[status] || { color: 'default', text: status || 'N/A' };
+        const upperStatus = status?.toUpperCase() || 'PENDING';
+        const config = statusMap[upperStatus] || { color: 'default', text: status || 'N/A' };
         return <Tag color={config.color} style={{ borderRadius: '4px' }}>{config.text}</Tag>;
       }
     },
     {
-      title: 'Thao tác', key: 'action', align: 'center' as const, width: 130,
-      render: (_: any, record: any) => (
+      title: 'Thao tác', 
+      key: 'action', 
+      align: 'center' as const, 
+      width: 100,
+      render: (_: any, record: DeviceRequest.RequestItem) => (
         <Button 
-          type="text" ghost size="small" 
-          icon={<EyeOutlined style={{ color: '#000000', fontSize: '18px' }} />}          
-          style={{ padding: 0, height: 'auto' }}
+          type="text" 
+          size="small" 
+          icon={<EyeOutlined style={{ color: '#1890ff', fontSize: '18px' }} />}          
+          style={{ padding: 0, height: 'auto', border: 'none', background: 'transparent' }}
           onClick={() => handleOpenDetails(record)}
-        >
-        </Button>
+        />
       ),
     },
   ];
@@ -75,27 +121,35 @@ const DeviceOrder: React.FC = () => {
   return (
     <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh', padding: '20px' }}>
       
-      <div style={{ marginBottom: '20px' }}>
-        <h2 style={{ margin: 0, fontWeight: 600, fontSize: '20px', color: '#1f1f1f' }}>
-          Quản lý yêu cầu mượn thiết bị
-        </h2>
+      {/* THANH TIÊU ĐỀ TRÊN CÙNG & QUẢ CHUÔNG THÔNG BÁO QUÁ HẠN */}
+      <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2 style={{ margin: 0, fontWeight: 600, fontSize: '20px', color: '#1f1f1f' }}>Quản lý yêu cầu mượn thiết bị</h2>
+        
+        {/* Component quả chuông hiển thị thông báo quá hạn tự động */}
+        <NotificationBell />
+
       </div>
 
-      {/* THANH BỘ LỌC TỐI GIẢN - ĐỒNG BỘ CHUẨN PHONG CÁCH QUẢN LÝ KHO */}
+      {/* BỘ LỌC TÌM KIẾM THEO TÊN VÀ TRẠNG THÁI */}
       <div style={{ 
         backgroundColor: '#ffffff', padding: '16px 24px', borderRadius: '12px', marginBottom: '16px',
         boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)', display: 'flex', gap: '16px', alignItems: 'center'
       }}>
         <Input
-          placeholder="Tìm kiếm theo tên sinh viên, mã SV, tên thiết bị... (Nhấn Enter)"
-          allowClear style={{ flex: 1 }}
+          placeholder="Tìm kiếm theo tên sinh viên..."
+          allowClear 
+          style={{ flex: 1, borderRadius: '6px' }}
           value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
+          onChange={(e) => {
+            setSearchText(e.target.value);
+            if (!e.target.value) fetchRequests({ keyword: '', status: statusFilter });
+          }}
           onPressEnter={handleSearch}
           prefix={<SearchOutlined style={{ color: '#bfbfbf', marginRight: '4px' }} />}
         />
         <Select
-          defaultValue="ALL" style={{ width: 180 }}
+          value={statusFilter} 
+          style={{ width: 190 }}
           onChange={(value) => {
             setStatusFilter(value);
             fetchRequests({ status: value, keyword: searchText });
@@ -103,31 +157,38 @@ const DeviceOrder: React.FC = () => {
           dropdownStyle={{ borderRadius: '8px' }}
           options={[
             { value: 'ALL', label: 'Tất cả trạng thái' },
-            { value: 'cho_duyet', label: 'Chờ duyệt' },
-            { value: 'da_duyet', label: 'Đã duyệt' },
-            { value: 'da_tra', label: 'Đã trả' },
-            { value: 'tu_choi', label: 'Từ chối' },
-            { value: 'qua_han', label: 'Quá hạn' },
+            { value: 'PENDING', label: 'Chờ duyệt' },
+            { value: 'APPROVED', label: 'Đã duyệt' },
+            { value: 'RETURNED', label: 'Đã trả' },
+            { value: 'REJECTED', label: 'Từ chối' },
+            { value: 'OVERDUE', label: 'Quá hạn' },
           ]}
         />
       </div>
 
-      {/* BẢNG TỔNG QUAN DANH SÁCH */}
-      <div style={{ backgroundColor: '#ffffff', padding: '20px 24px', borderRadius: '12px', boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)' }}>
+      {/* BẢNG CHỨA DANH SÁCH ĐƠN HÀNG THỰC TẾ TỪ JAVA BACKEND */}
+      <div style={{ backgroundColor: '#ffffff', padding: '12px 0px', borderRadius: '12px', boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)', overflow: 'hidden' }}>
         <Table
           loading={loading}
           dataSource={requests}
           columns={columns}
-          rowKey="id"
+          rowKey="idRequest" // Sử dụng khóa chính duy nhất idRequest từ ServiceRequestDTO
+          pagination={{ defaultPageSize: 10, locale: { items_per_page: '/ trang' } }}
         />
       </div>
-
-      {/* GỌI ĐẾN FILE DETAIL MODAL GỐC CỦA BẠN VÀ KHỚP CÁC PROPS */}
+      
+      {/* MODAL POPUP CHI TIẾT PHÊ DUYỆT VÀ NHẬN TRẢ ĐỒ */}
       <DetailModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        record={selectedRecord}
-        onUpdateStatus={handleUpdateStatus} // Truyền bệ phóng cập nhật dữ liệu của Model vào đây
+        record={currentRequest} // Truyền dữ liệu chi tiết thời gian thực từ API
+        onUpdateStatus={async (id: string | number, status: string) => {
+          // Bọc lệnh cập nhật trạng thái đồng bộ hóa ngược lại bảng chính
+          const success = await handleUpdateStatus(Number(id), status as any, searchText, statusFilter);
+          if (success) {
+            setIsModalOpen(false);
+          }
+        }} 
       />
 
     </div>

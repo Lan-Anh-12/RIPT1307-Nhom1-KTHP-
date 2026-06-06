@@ -7,16 +7,16 @@ declare namespace DashboardAPI {
     lowStock: number;
   };
 
-  /** Cấu trúc một phần tử trong danh sách Top 5 thiết bị mượn nhiều */
+  /** Cấu trúc khớp với DeviceTopDTO.java */
   type TopDeviceItem = {
     deviceName: string;
-    count: number;
+    borrowCount: number; 
   };
 
-  /** Cấu trúc một phần tử trong phân bổ trạng thái yêu cầu mượn */
+  /** Cấu trúc khớp với StatusStatDTO.java */
   type StatusDistributionItem = {
     status: string;
-    value: number;
+    count: number; 
   };
 
   /** Dữ liệu cốt lõi nằm bên trong gói phản hồi thành công */
