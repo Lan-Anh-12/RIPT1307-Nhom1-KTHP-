@@ -11,24 +11,40 @@ const YeuCauMuonThietBi: React.FC = () => {
 	const { form, submitting, deviceOptions, changeQuantity, handleSubmit, handleCancel } = useBorrowForm();
 
 	return (
-		<div style={{ padding: '0 16px', minHeight: '100vh', overflow: 'hidden' }}>
-			<div style={{ marginBottom: '24px' }}>
-				<Title level={2} style={{ marginBottom: '4px' }}>
-					Yêu cầu mượn thiết bị
-				</Title>
-				<Paragraph type='secondary'>Điền thông tin để gửi yêu cầu mượn thiết bị</Paragraph>
-			</div>
+		<div
+			style={{
+				margin: '-24px -24px -24px -24px',
+				padding: '32px 40px',
+				minHeight: 'calc(100vh + 48px)',
+				backgroundImage: `linear-gradient(to bottom, rgba(248, 250, 252, 0.6), rgba(248, 250, 252, 0.7)), url('https://images.unsplash.com/photo-1606857521015-7f9fcf423740?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')`,
+				backgroundSize: 'cover',
+				backgroundPosition: 'center',
+				backgroundAttachment: 'fixed',
+				boxSizing: 'border-box',
+			}}
+		>
+			<div style={{ width: '100%' }}>
+				<div style={{ marginBottom: '24px', textAlign: 'left' }}>
+					<Title level={2} style={{ marginBottom: '4px' }}>
+						Yêu cầu mượn thiết bị
+					</Title>
+					<Paragraph type='secondary'>Điền thông tin để gửi yêu cầu mượn thiết bị nhanh chóng</Paragraph>
+				</div>
 
-			<div style={{ width: '100%', maxWidth: '560px', margin: '40px auto' }}>
+				{/* ✅ Khung bảng (Card) được giới hạn độ rộng và căn giữa bằng margin '0 auto' */}
 				<Card
 					style={{
-						borderRadius: '12px',
-						boxShadow: '0 4px 14px rgba(0, 0, 0, 0.02)',
-						border: '1px solid #e2e8f0',
+						width: '100%',
+						maxWidth: '560px',
+						margin: '0 auto',
+						borderRadius: '16px',
+						boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05)',
+						border: 'none',
+						background: '#ffffff',
 					}}
+					bodyStyle={{ padding: '32px' }}
 				>
 					<Form form={form} layout='vertical' onFinish={handleSubmit} initialValues={{ quantity: 1 }}>
-						{/* Chọn thiết bị - Đã đồng bộ trường deviceItemId khớp Backend */}
 						<Form.Item
 							label={<span style={{ fontWeight: 600 }}>Chọn thiết bị</span>}
 							name='deviceItemId'
@@ -36,7 +52,6 @@ const YeuCauMuonThietBi: React.FC = () => {
 						>
 							<Select placeholder='-- Chọn thiết bị --' size='large' style={{ borderRadius: '6px' }}>
 								{deviceOptions.map((device) => (
-									/* Đã đồng bộ thuộc tính quantity thay cho stock */
 									<Select.Option key={device.id} value={device.id}>
 										{device.name} (Kho: {device.quantity ?? 0})
 									</Select.Option>
@@ -44,9 +59,7 @@ const YeuCauMuonThietBi: React.FC = () => {
 							</Select>
 						</Form.Item>
 
-						{/* Cụm Ngày mượn & Ngày trả */}
 						<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-							{/* Ngày mượn: Khóa hiển thị mặc định là ngày hôm nay, Backend tự động xử lý ngày tạo */}
 							<Form.Item label={<span style={{ fontWeight: 600 }}>Ngày mượn (Hôm nay)</span>}>
 								<DatePicker
 									defaultValue={moment()}
@@ -57,7 +70,6 @@ const YeuCauMuonThietBi: React.FC = () => {
 								/>
 							</Form.Item>
 
-							{/* Ngày trả dự kiến - Đã đồng bộ trường expectedReturnDate khớp Backend */}
 							<Form.Item
 								label={<span style={{ fontWeight: 600 }}>Ngày trả dự kiến</span>}
 								name='expectedReturnDate'
@@ -65,7 +77,6 @@ const YeuCauMuonThietBi: React.FC = () => {
 									{ required: true, message: 'Chọn ngày trả dự kiến!' },
 									() => ({
 										validator(_, value) {
-											// Ràng buộc logic: Ngày hẹn trả phải từ ngày mai trở đi
 											if (!value || value.isAfter(moment().endOf('day'))) {
 												return Promise.resolve();
 											}
@@ -84,12 +95,11 @@ const YeuCauMuonThietBi: React.FC = () => {
 							</Form.Item>
 						</div>
 
-						{/* Tăng giảm Số lượng */}
 						<Form.Item
 							label={<span style={{ fontWeight: 600 }}>Số lượng</span>}
 							name='quantity'
 							rules={[{ required: true }]}
-							style={{ marginBottom: '24px' }}
+							style={{ marginBottom: '28px' }}
 						>
 							<Space>
 								<Button
@@ -117,7 +127,6 @@ const YeuCauMuonThietBi: React.FC = () => {
 							</Space>
 						</Form.Item>
 
-						{/* Cụm nút bấm hành động */}
 						<Form.Item style={{ marginBottom: 0, marginTop: '16px' }}>
 							<Space size='middle'>
 								<Button

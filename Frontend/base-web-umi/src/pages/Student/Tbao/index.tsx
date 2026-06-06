@@ -43,7 +43,7 @@ const ThongBaoCuaToi: React.FC = () => {
 							type='primary'
 							icon={<CheckOutlined />}
 							onClick={handleMarkAllAsRead}
-							style={{ background: '#1e293b', borderColor: '#1e293b', borderRadius: '6px', fontWeight: 500 }}
+							style={{ background: '#00b96b', borderColor: '#00b96b', borderRadius: '6px', fontWeight: 500 }}
 						>
 							Đánh dấu tất cả đã đọc
 						</Button>
@@ -94,7 +94,7 @@ const ThongBaoCuaToi: React.FC = () => {
 									borderRadius: '8px',
 									border: '1px solid #e2e8f0',
 									boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-									backgroundColor: notif.isRead ? '#ffffff' : '#f8fafc', // Đổi nhẹ màu nền nếu chưa đọc để dễ phân biệt
+									backgroundColor: notif.isRead ? '#ffffff' : '#f8fafc',
 								}}
 							>
 								<div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
