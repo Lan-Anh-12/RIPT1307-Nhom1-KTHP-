@@ -1,7 +1,6 @@
 import React from 'react';
 import { Input, Select, Card, Typography, Spin } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-// ĐÃ CHỈNH SỬA: Đường dẫn lấy logic từ tầng Service
 import { useBorrowHistory } from '../../../services/LichSuMuon/useBorrowHistory';
 import HistoryTable from './HistoryTable';
 
@@ -50,7 +49,7 @@ const LichSuMuonThietBi: React.FC = () => {
 							bodyStyle={{ padding: '16px 20px' }}
 							style={{ borderRadius: '8px', border: '1px solid #e2e8f0' }}
 						>
-							<div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+							<div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
 								<Text type='secondary' style={{ fontSize: '14px', margin: 0 }}>
 									{item.label}
 								</Text>
