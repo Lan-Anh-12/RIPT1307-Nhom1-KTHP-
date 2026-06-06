@@ -2,6 +2,7 @@ import React from 'react';
 import { useModel } from 'umi';
 import { Form, Input, Button } from 'antd';
 import { MailOutlined, LockOutlined } from '@ant-design/icons';
+import { LoginSpace } from '@/services/login/typing.d';
 
 const LoginForm: React.FC = () => {
   // Lấy hàm xử lý và trạng thái xoay loading từ Model loginModel
