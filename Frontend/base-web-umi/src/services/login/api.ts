@@ -1,4 +1,5 @@
 import { request } from 'umi';
+import { LoginSpace } from './typing.d';
 
 const BASE_URL = 'https://ript1307-nhom1-kthp.onrender.com';
 
