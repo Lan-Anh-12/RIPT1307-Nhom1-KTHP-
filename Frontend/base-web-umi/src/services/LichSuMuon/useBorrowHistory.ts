@@ -9,19 +9,28 @@ export const useBorrowHistory = () => {
     const [statusFilter, setStatusFilter] = useState<string>('Tất cả');
 
     const fetchHistory = async () => {
-        setLoading(true);
-        try {
-            const response = await getBorrowHistoryList();
-			console.log("Dữ liệu lịch sử:", response); // Kiểm tra log này
-            if (response && Array.isArray(response)) {
-                setData(response);
-            }
-        } catch (error) {
-            message.error('Không thể tải lịch sử mượn!');
-        } finally {
-            setLoading(false);
+    setLoading(true);
+    try {
+        const response = await getBorrowHistoryList();
+        
+        // LOG CỰC KỲ QUAN TRỌNG
+        console.log("--- BẮT ĐẦU KIỂM TRA DỮ LIỆU ---");
+        console.log("Response từ server:", response);
+        if (response && response.length > 0) {
+            console.log("Trường dữ liệu mẫu:", Object.keys(response[0]));
+            // Kiểm tra xem nó có chứa 'device', 'idRequest' như interface của bạn không
+        } else {
+            console.log("Server trả về mảng rỗng []");
         }
-    };
+        
+        setData(response || []);
+    } catch (error) {
+        console.error("Lỗi gọi API:", error);
+        message.error('Không thể tải lịch sử mượn!');
+    } finally {
+        setLoading(false);
+    }
+};
 
     useEffect(() => {
         fetchHistory();

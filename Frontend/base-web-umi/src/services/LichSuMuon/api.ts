@@ -1,18 +1,13 @@
-export async function getMyBorrowHistory() {
-    // Lấy tên sinh viên từ localStorage (hoặc chỗ bạn lưu tên)
-    const studentName = localStorage.getItem('userName'); 
-    
-    if (!studentName) {
-        console.error("Không tìm thấy tên sinh viên!");
-        return [];
-    }
+import axios from '@/utils/axios';
 
-    // API của bạn là GET /api/requests/search?name=...
-    const response = await axios.get(`${BASE_URL}/api/requests/search`, {
-        params: {
-            name: studentName // Đây là tham số 'name' mà Controller mong đợi
-        }
-    });
+const BASE_URL = 'https://ript1307-nhom1-kthp.onrender.com';
+
+// Lấy danh sách lịch sử mượn bằng cách tìm kiếm theo tên sinh viên đã lưu trong localStorage
+export async function getBorrowHistoryList() {
+    const studentName = localStorage.getItem('userName'); // Lấy tên đã lưu khi login
     
-    return response.data;
+    // Gọi API search theo name đã có sẵn trong Controller của bạn
+    return (await axios.get(`${BASE_URL}/api/requests/search`, {
+        params: { name: studentName }
+    })).data;
 }
