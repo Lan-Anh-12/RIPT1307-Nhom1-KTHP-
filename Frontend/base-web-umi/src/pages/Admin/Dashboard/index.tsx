@@ -26,14 +26,15 @@ const DeviceDashboard: React.FC = () => {
     }
   }, [fetchDashboardData]);
 
-  // CẤU HÌNH BIỂU ĐỒ CỘT 
+  //  CẤU HÌNH BIỂU ĐỒ CỘT 
   const columnConfig = {
     data: topDevicesData || [],
     xField: 'deviceName',
     yField: 'borrowCount', 
+    color: '#0dc286',
     autoFit: true,
     padding: 'auto',
-    appendPadding: [10, 10, 20, 10], 
+    appendPadding: [10, 10, 20, 10], // Khoảng đệm an toàn [Trên, Phải, Dưới, Trái]
     label: {
       position: 'middle' as const,
       style: {
@@ -47,6 +48,7 @@ const DeviceDashboard: React.FC = () => {
       deviceName: { alias: 'Thiết bị' },
       borrowCount: { alias: 'Lượt mượn' },
     },
+    // Tự động điều chỉnh chữ trục X khi tên thiết bị quá dài
     xAxis: {
       label: {
         autoRotate: true,
@@ -74,22 +76,38 @@ const DeviceDashboard: React.FC = () => {
     },
   };
 
-  //  BẢNG MÀU ĐỒNG BỘ TRẠNG THÁI YÊU CẦU ĐƠN
+  //  BẢNG MÀU ĐỒNG
   const colorMap: Record<string, string> = {
-    'Đã trả': '#00a870',     
-    'Đã duyệt': '#e67e22',   
-    'Chờ duyệt': '#faad14',  
-    'Từ chối': '#d63031',    
-    'Quá hạn': '#7f8c8d',    
+    'RETURNED': '#00a870',   // Đã trả -> Xanh lá
+    'APPROVED': '#e67e22',   // Đã duyệt -> Cam
+    'PENDING': '#faad14',    // Chờ duyệt -> Vàng
+    'REJECTED': '#d63031',   // Từ chối -> Đỏ
+    'OVERDUE': '#7f8c8d',    // Quá hạn -> Xám tro
   };
 
-  //  CẤU HÌNH BIỂU ĐỒ TRÒN DONUT 
+  //  CẤU HÌNH BIỂU ĐỒ TRÒN DONUT (Đã sửa lỗi hiển thị màu và việt hóa nhãn)
   const donutConfig = {
     data: statusDistributionData || [],
     angleField: 'count', 
     colorField: 'status',
     radius: 1,
     innerRadius: 0.6,
+    
+    meta: {
+      status: {
+        formatter: (val: string) => {
+          const mapping: Record<string, string> = {
+            'RETURNED': 'Đã trả',
+            'APPROVED': 'Đã duyệt',
+            'PENDING': 'Chờ duyệt',
+            'REJECTED': 'Từ chối',
+            'OVERDUE': 'Quá hạn',
+          };
+          return mapping[val] || val;
+        },
+      },
+    },
+
     label: {
       type: 'inner',
       offset: '-50%',
@@ -99,14 +117,14 @@ const DeviceDashboard: React.FC = () => {
         fontWeight: 'bold',
       },
     },
-    // Đổ màu chuẩn xác theo trạng thái bằng hàm Callback
+    // Hàm callback lấy mã màu chuẩn xác theo key tiếng Anh hệ thống
     color: ({ status }: { status: string }) => {
       return colorMap[status] || '#1890ff';
     },
     legend: {
       position: 'right' as const,
     },
-
+    // Khóa văn bản vào chính giữa tâm hình khuyên donut bằng thuộc tính statistic
     statistic: {
       title: {
         offsetY: -12,
@@ -148,7 +166,7 @@ const DeviceDashboard: React.FC = () => {
               <Statistic
                 title={<span style={{ color: '#8c8c8c' }}>Yêu cầu hệ thống</span>}
                 value={summaryData?.totalRequests || 0}
-                valueStyle={{ fontWeight: 'bold', fontSize: '26px', color: '#1f1f1f' }}
+                valueStyle={{ fontWeight: 'bold', fontSize: '26px', color: '#00a870' }}
                 prefix={<FileTextOutlined style={{ color: '#00a870', backgroundColor: '#e6f7ff', padding: '8px', borderRadius: '8px', marginRight: '8px' }} />}
               />
             </Card>
@@ -158,7 +176,7 @@ const DeviceDashboard: React.FC = () => {
               <Statistic
                 title={<span style={{ color: '#8c8c8c' }}>Đang mượn</span>}
                 value={summaryData?.approved || 0}
-                valueStyle={{ fontWeight: 'bold', fontSize: '26px', color: '#1f1f1f' }}
+                valueStyle={{ fontWeight: 'bold', fontSize: '26px', color: '#2f54eb' }}
                 prefix={<CheckCircleOutlined style={{ color: '#2f54eb', backgroundColor: '#f0f5ff', padding: '8px', borderRadius: '8px', marginRight: '8px' }} />}
               />
             </Card>
@@ -166,10 +184,10 @@ const DeviceDashboard: React.FC = () => {
           <Col xs={24} sm={12} md={6}>
             <Card bordered={false} bodyStyle={{ padding: '20px 24px' }} style={{ borderRadius: '12px', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
               <Statistic
-                title={<span style={{ color: '#8c8c8c' }}>Quá hạn </span>}
+                title={<span style={{ color: '#8c8c8c' }}>Quá hạn</span>}
                 value={summaryData?.overdue || 0}
-                valueStyle={{ fontWeight: 'bold', fontSize: '26px', color: '#b30000' }}
-                prefix={<ClockCircleOutlined style={{ color: '#b30000', backgroundColor: '#fff1f0', padding: '8px', borderRadius: '8px', marginRight: '8px' }} />}
+                valueStyle={{ fontWeight: 'bold', fontSize: '26px', color: '#a90d7d' }}
+                prefix={<ClockCircleOutlined style={{ color: '#a90d7d', backgroundColor: '#fff1f0', padding: '8px', borderRadius: '8px', marginRight: '8px' }} />}
               />
             </Card>
           </Col>
