@@ -1,0 +1,26 @@
+import { Settings as LayoutSettings } from '@ant-design/pro-layout';
+
+const Settings: LayoutSettings & {
+	pwa?: boolean;
+	logo?: string;
+	borderRadiusBase: string;
+	siderWidth: number;
+} = {
+	navTheme: 'light',
+	primaryColor: "#32CD32",
+	borderRadiusBase: '2px',
+	layout: 'mix',
+	contentWidth: 'Fluid',
+	fixedHeader: false,
+	fixSiderbar: true,
+	colorWeak: false,
+	title: 'Hệ thống cho mượn thiết bị',
+	pwa: false,
+	logo: '/logo.png',
+	iconfontUrl: '',
+	headerTheme: 'light',
+	headerHeight: 60,
+	siderWidth: 220,
+};
+
+export default Settings;
