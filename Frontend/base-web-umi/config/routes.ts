@@ -29,21 +29,21 @@
   },
 
   // SINH VIÊN (STUDENT)
-  {
-    path: '/student',
-    name: 'Sinh viên',
-    access: 'isStudent', 
-    flatMenu: true,
-    routes: [
-      { path: '/student/danh-sach-thiet-bi', name: 'Danh sách thiết bị', component: './Student/DanhSachThietBi',icon: 'BankOutlined' },
-      { path: '/student/yeu-cau-muon', name: 'Yêu cầu mượn', component: './Student/YeuCauMuon',	icon: 'FileTextOutlined' },
-      { path: '/student/lich-su-muon', name: 'Lịch sử mượn', component: './Student/LichSuMuon',icon: 'HistoryOutlined' },
-	  { path: '/student/thong-bao', name: 'Thông báo', component: './Student/Tbao',	icon: 'BellOutlined'},
-      // Redirect mặc định cho sinh viên
-      { path: '/student', redirect: '/student/danh-sach-thiet-bi' },
-    ],
-  },
-]  
+//   {
+//     path: '/student',
+//     name: 'Sinh viên',
+//     access: 'isStudent', 
+//     flatMenu: true,
+//     routes: [
+//       { path: '/student/danh-sach-thiet-bi', name: 'Danh sách thiết bị', component: './Student/DanhSachThietBi',icon: 'BankOutlined' },
+//       { path: '/student/yeu-cau-muon', name: 'Yêu cầu mượn', component: './Student/YeuCauMuon',	icon: 'FileTextOutlined' },
+//       { path: '/student/lich-su-muon', name: 'Lịch sử mượn', component: './Student/LichSuMuon',icon: 'HistoryOutlined' },
+// 	  { path: '/student/thong-bao', name: 'Thông báo', component: './Student/Tbao',	icon: 'BellOutlined'},
+//       // Redirect mặc định cho sinh viên
+//       { path: '/student', redirect: '/student/danh-sach-thiet-bi' },
+//     ],
+//   },
+ ]  
 
 
 //   // 5. CÁC ĐỊNH TUYẾN PHỤ VÀ HỆ THỐNG KHÁC
