@@ -138,9 +138,15 @@
     "typescript": "^4.2.2"
   },
   "engines": {
+<<<<<<< HEAD
     "node": "16.x"
   },
   "gitHooks": {
     "commit-msg": "fabric verify-commit"
   }
 }
+=======
+    "node": "20.x"
+  }
+}
+>>>>>>> 03d1dcdb727399486ce742f7cb87042c355002e3
