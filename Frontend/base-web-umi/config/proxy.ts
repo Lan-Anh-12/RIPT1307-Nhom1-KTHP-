@@ -1,30 +1,26 @@
-/**
- * 在生产环境 代理是无法生效的，所以这里没有生产环境的配置
- * The agent cannot take effect in the production environment
- * so there is no configuration of the production environment
- * For details, please see
- * https://pro.ant.design/docs/deploy
- */
 export default {
   dev: {
+    // Thêm cấu hình này để xử lý các request bắt đầu bằng /api
+    '/api': {
+      target: 'https://ript1307-nhom1-kthp.onrender.com',
+      changeOrigin: true,
+      // pathRewrite giữ nguyên /api để Backend nhận đúng route
+      pathRewrite: { '^/api': '/api' }, 
+    },
     '/v1/': {
       target: 'http://203.162.10.108:8099',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
+    // ... giữ nguyên các cấu hình khác
   },
+  // Tương tự, cập nhật vào phần test/pre nếu cần
   test: {
-    '/v2.2/': {
-      target: 'https://apidev.sotaydangvien.com',
+    '/api': {
+      target: 'https://ript1307-nhom1-kthp.onrender.com',
       changeOrigin: true,
-      pathRewrite: { '^': '' },
+      pathRewrite: { '^/api': '/api' },
     },
-  },
-  pre: {
-    '/v2.2/': {
-      target: 'https://apidev.sotaydangvien.com',
-      changeOrigin: true,
-      pathRewrite: { '^': '' },
-    },
+    // ...
   },
 };

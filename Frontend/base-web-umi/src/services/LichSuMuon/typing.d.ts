@@ -12,4 +12,12 @@ declare namespace BorrowHistorySpace {
         totalRequest: number;     // Khớp với private Integer totalRequest;
         email: string;            // Khớp với private String email;
     }
+
+    // Bổ sung mảnh ghép còn thiếu này:
+    interface HistoryStats {
+        pending: number;
+        approved: number;
+        rejected: number;
+        returned: number;
+    }
 }

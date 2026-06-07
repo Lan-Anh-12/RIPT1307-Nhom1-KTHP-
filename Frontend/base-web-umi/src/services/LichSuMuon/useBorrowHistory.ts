@@ -1,6 +1,15 @@
 import { useState, useMemo, useEffect } from 'react';
 import { message, Modal } from 'antd';
-import { getBorrowHistoryList, cancelBorrowRequest } from './api';
+import { getBorrowHistoryList} from './api';
+
+// Bản đồ trạng thái để đồng bộ giữa UI và API
+const STATUS_MAP: Record<string, string> = {
+    'Tất cả': 'ALL',
+    'Chờ duyệt': 'PENDING',
+    'Đã duyệt': 'APPROVED',
+    'Từ chối': 'REJECTED',
+    'Đã trả': 'RETURNED',
+};
 
 export const useBorrowHistory = () => {
     const [data, setData] = useState<BorrowHistorySpace.HistoryItem[]>([]);
@@ -9,33 +18,25 @@ export const useBorrowHistory = () => {
     const [statusFilter, setStatusFilter] = useState<string>('Tất cả');
 
     const fetchHistory = async () => {
-    setLoading(true);
-    try {
-        const response = await getBorrowHistoryList();
-        
-        // LOG CỰC KỲ QUAN TRỌNG
-        console.log("--- BẮT ĐẦU KIỂM TRA DỮ LIỆU ---");
-        console.log("Response từ server:", response);
-        if (response && response.length > 0) {
-            console.log("Trường dữ liệu mẫu:", Object.keys(response[0]));
-            // Kiểm tra xem nó có chứa 'device', 'idRequest' như interface của bạn không
-        } else {
-            console.log("Server trả về mảng rỗng []");
+        setLoading(true);
+        try {
+            const response = await getBorrowHistoryList();
+            // Đảm bảo dữ liệu là mảng, xử lý trường hợp API trả về object chứa mảng
+            const result = Array.isArray(response) ? response : (response?.data || []);
+            setData(result);
+        } catch (error) {
+            console.error("Lỗi tải lịch sử:", error);
+            message.error('Không thể tải lịch sử mượn!');
+        } finally {
+            setLoading(false);
         }
-        
-        setData(response || []);
-    } catch (error) {
-        console.error("Lỗi gọi API:", error);
-        message.error('Không thể tải lịch sử mượn!');
-    } finally {
-        setLoading(false);
-    }
-};
+    };
 
     useEffect(() => {
         fetchHistory();
     }, []);
 
+    // Thống kê số lượng theo trạng thái
     const stats = useMemo<BorrowHistorySpace.HistoryStats>(() => {
         return {
             pending: data.filter((item) => item.status === 'PENDING').length,
@@ -45,46 +46,23 @@ export const useBorrowHistory = () => {
         };
     }, [data]);
 
+    // Lọc dữ liệu thông minh
     const filteredData = useMemo(() => {
         return data.filter((item) => {
-            // SỬA: Dùng item.device thay vì item.deviceName
-            const matchesSearch = item.device?.toLowerCase().includes(searchText.toLowerCase());
+            const searchLower = searchText.toLowerCase();
+            const matchesSearch = 
+                item.device?.toLowerCase().includes(searchLower) || 
+                String(item.idRequest).includes(searchLower);
             
-            let matchesStatus = false;
-            if (statusFilter === 'Tất cả') matchesStatus = true;
-            else if (statusFilter === 'Chờ duyệt' && item.status === 'PENDING') matchesStatus = true;
-            else if (statusFilter === 'Đã duyệt' && item.status === 'APPROVED') matchesStatus = true;
-            else if (statusFilter === 'Từ chối' && item.status === 'REJECTED') matchesStatus = true;
-            else if (statusFilter === 'Đã trả' && item.status === 'RETURNED') matchesStatus = true;
+            const filterKey = STATUS_MAP[statusFilter];
+            const matchesStatus = filterKey === 'ALL' || item.status === filterKey;
 
             return matchesSearch && matchesStatus;
         });
     }, [data, searchText, statusFilter]);
 
-    const handleCancelRequest = (record: BorrowHistorySpace.HistoryItem) => {
-        if (record.status !== 'PENDING') {
-            message.warning('Không thể hủy đơn hàng đã được xử lý!');
-            return;
-        }
-
-        Modal.confirm({
-            title: 'Xác nhận hủy yêu cầu',
-            content: `Bạn có chắc muốn hủy yêu cầu mượn thiết bị "${record.device}" này không?`,
-            okText: 'Hủy yêu cầu',
-            okType: 'danger',
-            centered: true,
-            onOk: async () => {
-                try {
-                    // SỬA: Dùng record.idRequest thay vì record.id
-                    await cancelBorrowRequest(record.idRequest);
-                    message.success('Đã hủy thành công!');
-                    await fetchHistory(); 
-                } catch (error: any) {
-                    message.error(error?.response?.data?.message || 'Hủy thất bại!');
-                }
-            },
-        });
-    };
+    // Xử lý hủy yêu cầu
+    
 
     return {
         searchText,
@@ -94,6 +72,6 @@ export const useBorrowHistory = () => {
         stats,
         filteredData,
         loading,
-        handleCancelRequest,
+        fetchHistory
     };
 };

@@ -9,15 +9,17 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ dataSource }) => {
     const columns = [
         {
             title: 'Mã yêu cầu',
-            dataIndex: 'id',
-            key: 'id',
+            dataIndex: 'idRequest', // Đã sửa: từ 'id' thành 'idRequest'
+            key: 'idRequest',
             width: '140px',
-            render: (id: number) => <span style={{ fontWeight: 600, color: '#1e293b' }}>REQ-{id}</span>,
+            render: (idRequest: number) => (
+                <span style={{ fontWeight: 600, color: '#1e293b' }}>REQ-{idRequest}</span>
+            ),
         },
         {
             title: 'Tên thiết bị',
-            dataIndex: 'deviceName',
-            key: 'deviceName',
+            dataIndex: 'device', // Đã sửa: từ 'deviceName' thành 'device'
+            key: 'device',
         },
         {
             title: 'SL',
@@ -88,7 +90,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ dataSource }) => {
         <Table
             dataSource={dataSource}
             columns={columns}
-            rowKey='id'
+            rowKey="idRequest" // Đã sửa: từ 'id' thành 'idRequest' để khớp với dữ liệu API
             pagination={{ pageSize: 5, showTotal: (total) => `Tổng số ${total} yêu cầu` }}
             style={{ marginTop: '8px' }}
         />
