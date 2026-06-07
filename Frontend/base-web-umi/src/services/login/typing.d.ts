@@ -7,11 +7,13 @@ export declare namespace LoginSpace {
 
   interface LoginResponse {
     token?: string;
+    userId?: number;
     role?: 'ADMIN' | 'STUDENT' | string;
     name?: string;
   }
 
   interface CurrentUser {
+    userId?: number;
     name?: string;
     role?: 'ADMIN' | 'STUDENT' | string;
     avatar?: string;

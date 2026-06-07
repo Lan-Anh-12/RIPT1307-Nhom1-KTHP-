@@ -26,7 +26,7 @@ public class RequestManagementController {
     }
 
     // Tìm kiếm yêu cầu theo tên sinh viên
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','STUDENT')")
     @GetMapping("/search")
     public ResponseEntity<List<ServiceRequestDTO>> searchRequests(
             @RequestParam(value = "name", required = false, defaultValue = "") String name
