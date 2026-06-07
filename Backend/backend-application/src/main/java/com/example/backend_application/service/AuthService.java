@@ -1,8 +1,8 @@
 package com.example.backend_application.service;
 
 import com.example.backend_application.dto.LoginRequest;
-import java.util.Map;
+import com.example.backend_application.dto.AuthResponseDTO; // Import DTO mới
 
 public interface AuthService {
-    Map<String, Object> login(LoginRequest loginRequest);
+    AuthResponseDTO login(LoginRequest loginRequest);
 }

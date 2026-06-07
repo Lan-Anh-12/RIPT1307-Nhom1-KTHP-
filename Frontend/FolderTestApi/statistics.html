@@ -2,13 +2,13 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>API Dashboard - Hệ thống Mượn Thiết bị</title>
+    <title>API Test Dashboard - Full Integrated</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f8f9fa; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
         h2 { color: #007bff; border-bottom: 2px solid #eee; padding-bottom: 8px; font-size: 1.2em; }
-        .row { margin-bottom: 15px; }
+        .row { margin-bottom: 10px; }
         input { padding: 8px; width: 100%; box-sizing: border-box; margin: 4px 0; border: 1px solid #ced4da; border-radius: 4px; }
         button { padding: 10px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; font-weight: bold; width: 100%; margin-top: 5px; }
         button:hover { background: #0056b3; }
@@ -27,32 +27,28 @@
             </div>
 
             <div class="box">
-                <h2>Tìm kiếm Yêu cầu</h2>
-                <input id="searchName" placeholder="Tên sinh viên">
-                <button onclick="searchByName()" style="background: #6f42c1;">Tìm theo tên SV</button>
-                <input id="searchKeyword" placeholder="Từ khóa (ID/Tên thiết bị)">
-                <button onclick="searchHistory()" style="background: #6f42c1;">Tìm lịch sử mượn</button>
+                <h2>2. Thống kê (Admin Only)</h2>
+                <button onclick="callApi('GET', '/api/statistics/top-devices?limit=5')" style="background: #6f42c1;">Top 5 thiết bị</button>
+                <button onclick="callApi('GET', '/api/statistics/borrow-stats')" style="background: #6f42c1;">Thống kê trạng thái</button>
             </div>
 
             <div class="box">
-                <h2>2. Tạo Yêu cầu Mượn</h2>
+                <h2>3. Tạo Yêu cầu Mượn</h2>
                 <input id="cUserId" placeholder="User ID">
                 <input id="cDeviceId" placeholder="Device Item ID">
                 <input id="cQty" type="number" placeholder="Số lượng">
-                <label>Ngày mượn:</label>
                 <input id="cReqDate" type="date">
-                <label>Ngày trả:</label>
                 <input id="cReturnDate" type="date">
                 <button onclick="createRequest()" style="background: #28a745;">Gửi yêu cầu mượn</button>
             </div>
 
             <div class="box">
-                <h2>3. Quản lý Yêu cầu (Admin)</h2>
+                <h2>4. Quản lý (Admin)</h2>
                 <button onclick="callApi('GET', '/api/requests/all')">Lấy tất cả yêu cầu</button>
-                <div class="row" style="margin-top:10px">
+                <div class="row">
                     <input id="updId" placeholder="Request ID">
                     <button onclick="updateStatus('APPROVED')">Duyệt (Approved)</button>
-                    <button onclick="updateStatus('RETURNED')" style="background: #17a2b8;">Ghi nhận Trả (Returned)</button>
+                    <button onclick="updateStatus('RETURNED')" style="background: #17a2b8;">Ghi nhận trả</button>
                 </div>
             </div>
         </div>
@@ -70,24 +66,16 @@
             const res = await fetch(`${BASE_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: document.getElementById('email').value, password: document.getElementById('pass').value })
+                body: JSON.stringify({ 
+                    email: document.getElementById('email').value, 
+                    password: document.getElementById('pass').value 
+                })
             });
             const data = await res.json();
             if (res.ok) {
                 localStorage.setItem("token", data.token);
                 alert("Đăng nhập thành công!");
             } else { alert("Lỗi: " + data.message); }
-        }
-
-        // --- MỚI: Hàm xử lý tìm kiếm ---
-        function searchByName() {
-            const name = document.getElementById('searchName').value;
-            callApi('GET', `/api/requests/search?name=${encodeURIComponent(name)}`);
-        }
-
-        function searchHistory() {
-            const kw = document.getElementById('searchKeyword').value;
-            callApi('GET', `/api/requests/search-history?keyword=${encodeURIComponent(kw)}`);
         }
 
         async function createRequest() {
@@ -116,7 +104,6 @@
                     },
                     body: body ? JSON.stringify(body) : null
                 });
-                
                 const text = await res.text();
                 let display = text;
                 try { display = JSON.stringify(JSON.parse(text), null, 2); } catch(e) {}

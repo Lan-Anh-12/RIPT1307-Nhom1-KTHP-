@@ -5,7 +5,7 @@ import { CheckOutlined, CloseOutlined, RollbackOutlined, ClockCircleOutlined, Ed
 interface DetailModalProps {
   open: boolean;
   onClose: () => void;
-  record: DeviceRequest.RequestItem | null; // 🌟 Dùng chuẩn Type hệ thống thay vì any
+  record: DeviceRequest.RequestItem | null; 
   loading?: boolean; 
   // Đổi cấu trúc nhận tham số phẳng (id, status) khớp hoàn toàn với hàm bọc ở file index.tsx
   onUpdateStatus: (id: number | string, status: 'APPROVED' | 'REJECTED' | 'RETURNED') => Promise<void>;

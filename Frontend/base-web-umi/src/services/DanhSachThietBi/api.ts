@@ -1,15 +1,26 @@
-import { request } from 'umi';
+import axios from '@/utils/axios';
 import type { DeviceType } from './typing';
 
+const BASE_URL = 'https://ript1307-nhom1-kthp.onrender.com';
+
 /**
- * API lấy danh sách thiết bị thực tế từ Backend
- * @param keyword Từ khóa tìm kiếm (Tên thiết bị hoặc thông tin liên quan)
+ * API lấy danh sách thiết bị từ Backend
+ * @param keyword Từ khóa tìm kiếm
  */
 export async function getDeviceList(keyword?: string): Promise<DeviceType[]> {
-	return request<DeviceType[]>('/api/devices', {
-		method: 'GET',
-		params: {
-			keyword, // Tự động map thành ?keyword=... nếu người dùng nhập ô tìm kiếm
-		},
-	});
+    // Sử dụng axios trực tiếp
+    const response = await axios.get(`${BASE_URL}/api/devices`, {
+        params: {
+            keyword,
+        },
+    });
+
+    // Xử lý dữ liệu:
+    // 1. Nếu axios interceptor đã trả về thẳng response.data (thường là mảng luôn):
+    // return response; 
+
+    // 2. Nếu response là một object bao gồm { data: [...] } (phổ biến trong nhiều API):
+    // Truy cập vào thuộc tính chứa mảng dữ liệu. 
+    // Nếu API trả về mảng trực tiếp, dòng dưới đây sẽ lấy chính mảng đó.
+    return (response as any).data || response || [];
 }

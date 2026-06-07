@@ -1,22 +1,18 @@
-import { request } from 'umi';
-
+import axios from '@/utils/axios';
 const BASE_URL = 'https://ript1307-nhom1-kthp.onrender.com';
 
 /**  1. API Lấy tất cả yêu cầu (Admin xem danh sách tổng)
  * GET /api/requests/all
  */
 export async function getOrderList() {
-  return request<DeviceRequest.RequestItem[]>(`${BASE_URL}/api/requests/all`, {
-    method: 'GET',
-  });
+  return axios.get<DeviceRequest.RequestItem[]>(`${BASE_URL}/api/requests/all`);
 }
 
 /**  2. API Tìm kiếm yêu cầu theo tên sinh viên (Thanh tìm kiếm chính)
  * GET /api/requests/search?name=...
  */
 export async function searchRequestsByName(name: string) {
-  return request<DeviceRequest.RequestItem[]>(`${BASE_URL}/api/requests/search`, {
-    method: 'GET',
+  return axios.get<DeviceRequest.RequestItem[]>(`${BASE_URL}/api/requests/search`, {
     params: { name },
   });
 }
@@ -25,7 +21,7 @@ export async function searchRequestsByName(name: string) {
  * GET /api/requests/search-history?keyword=...
  */
 export async function searchHistory(keyword: string) {
-  return request<DeviceRequest.RequestItem[]>(`${BASE_URL}/api/requests/search-history`, {
+  return axios.get<DeviceRequest.RequestItem[]>(`${BASE_URL}/api/requests/search-history`, {
     method: 'GET',
     params: { keyword },
   });
@@ -35,8 +31,7 @@ export async function searchHistory(keyword: string) {
  * GET /api/requests/{id}
  */
 export async function getRequestById(id: number | string) {
-  return request<DeviceRequest.RequestItem>(`${BASE_URL}/api/requests/${id}`, {
-    method: 'GET',
+  return axios.get<DeviceRequest.RequestItem>(`${BASE_URL}/api/requests/${id}`, {
   });
 }
 
@@ -45,17 +40,13 @@ export async function getRequestById(id: number | string) {
  * body gửi lên: { "status": "APPROVED" | "REJECTED" | "RETURNED" }
  */
 export async function updateOrderStatus(idRequest: number | string, status: 'APPROVED' | 'REJECTED' | 'RETURNED') {
-  return request<any>(`${BASE_URL}/api/requests/${idRequest}/status`, {
-    method: 'PUT',
-    data: { status },
-  });
+  return axios.put(`${BASE_URL}/api/requests/${idRequest}/status`, { status });
 }
 
 /**  6. API Lấy toàn bộ danh sách thông báo tự động từ hệ thống (Để Admin lọc ra thông báo quá hạn)
  * GET /api/notifications
  */
 export async function getAllNotifications() {
-  return request<DeviceNotification.NotificationItem[]>(`${BASE_URL}/api/notifications`, {
-    method: 'GET',
+  return axios.get<DeviceNotification.NotificationItem[]>(`${BASE_URL}/api/notifications`, {
   });
 }

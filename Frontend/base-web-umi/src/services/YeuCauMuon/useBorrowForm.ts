@@ -1,89 +1,87 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Form, message } from 'antd';
 import { useLocation, history } from 'umi';
-import moment from 'moment';
 import { getActiveDevices, createBorrowRequest } from './api';
 
 export const useBorrowForm = () => {
-	const [form] = Form.useForm<BorrowRequestSpace.FormValues>();
-	const location = useLocation();
-	const [submitting, setSubmitting] = useState<boolean>(false);
-	const [devices, setDevices] = useState<BorrowRequestSpace.DeviceModel[]>([]);
+    const [form] = Form.useForm();
+    const location = useLocation();
+    const [submitting, setSubmitting] = useState<boolean>(false);
+    const [devices, setDevices] = useState<any[]>([]);
 
-	// 🔄 Lấy danh sách thiết bị thật từ Backend
-	useEffect(() => {
-		const fetchDevices = async () => {
-			try {
-				const response = await getActiveDevices();
-				if (response && Array.isArray(response)) {
-					setDevices(response);
-				}
-			} catch (error) {
-				message.error('Không thể tải danh sách thiết bị từ hệ thống máy chủ!');
-			}
-		};
-		fetchDevices();
-	}, []);
+    useEffect(() => {
+        const fetchDevices = async () => {
+            try {
+                const response = await getActiveDevices();
+                // Đảm bảo dữ liệu là mảng
+                setDevices(Array.isArray(response) ? response : []);
+            } catch (error) {
+                message.error('Không thể tải danh sách thiết bị!');
+            }
+        };
+        fetchDevices();
+    }, []);
 
-	// 🎯 Tự động điền ID thiết bị nếu sinh viên bấm từ trang Chi tiết sang
-	useEffect(() => {
-		const searchParams = new URLSearchParams(location.search);
-		const deviceIdFromUrl = searchParams.get('deviceId');
+    const changeQuantity = (amount: number) => {
+        const currentQty = form.getFieldValue('quantity') || 1;
+        const newQty = Math.max(1, currentQty + amount);
+        form.setFieldsValue({ quantity: newQty });
+    };
 
-		if (deviceIdFromUrl) {
-			form.setFieldsValue({ deviceItemId: Number(deviceIdFromUrl) });
-		}
-	}, [location.search, form]);
+    const handleSubmit = async (values: any) => {
+        // Kiểm tra validate date trước khi gửi
+        if (!values.requestDate || !values.expectedReturnDate) {
+            message.warning('Vui lòng chọn đầy đủ ngày mượn và ngày trả!');
+            return;
+        }
 
-	// Hàm điều chỉnh số lượng mượn nhanh bằng nút bấm
-	const changeQuantity = (amount: number) => {
-		const currentQty = form.getFieldValue('quantity') || 1;
-		const newQty = Math.max(1, currentQty + amount);
-		form.setFieldsValue({ quantity: newQty });
-	};
+        // Lấy userId từ localStorage (cần thiết để khớp với trường 'id' trong DTO của Backend)
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            message.error('Không tìm thấy thông tin đăng nhập. Vui lòng đăng nhập lại!');
+            history.push('/login');
+            return;
+        }
 
-	// 🚀 Bấm nút gửi đơn - Đẩy thẳng data xuống Backend thật của Lan Anh
-	const handleSubmit = async (values: BorrowRequestSpace.FormValues) => {
-		setSubmitting(true);
-		try {
-			// Khớp chuẩn 100% thuộc tính của BorrowCreateRequestDTO.java
-			const payload: BorrowRequestSpace.CreateBorrowPayload = {
-				requestDate: moment().format('YYYY-MM-DD'), // Ngày hôm nay
-				expectedReturnDate: values.expectedReturnDate?.format('YYYY-MM-DD'), // Ngày hẹn trả
-				deviceItemId: Number(values.deviceItemId),
-				quantity: values.quantity,
-			};
+        setSubmitting(true);
+        try {
+            // Định dạng đúng chuẩn YYYY-MM-DD mà Java @RequestBody mong đợi
+            const payload = {
+                id: Number(userId), // Truyền ID người dùng để Backend xác định chủ sở hữu đơn
+                deviceItemId: Number(values.deviceItemId),
+                quantity: Number(values.quantity),
+                requestDate: values.requestDate.format('YYYY-MM-DD'),
+                expectedReturnDate: values.expectedReturnDate.format('YYYY-MM-DD'),
+            };
 
-			// Gọi API thật xuống Backend
-			const res = await createBorrowRequest(payload);
+            console.log("Payload gửi đi:", JSON.stringify(payload));
 
-			message.success(res?.message || 'Gửi yêu cầu mượn thiết bị thành công! Đang chờ phê duyệt.');
-			form.resetFields();
-			form.setFieldsValue({ quantity: 1 });
+            await createBorrowRequest(payload);
+            
+            message.success('Gửi yêu cầu mượn thiết bị thành công!');
+            form.resetFields();
+            history.push('/student/lich-su-muon');
+        } catch (error: any) {
+            // Hiển thị chi tiết lỗi từ server nếu có
+            const errorMsg = error?.response?.data?.message || 'Gửi yêu cầu thất bại! Vui lòng kiểm tra lại thông tin.';
+            message.error(errorMsg);
+            console.error("Lỗi API:", error);
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
-			// Chuyển hướng về trang lịch sử mượn để sinh viên theo dõi đơn
-			history.push('/lich-su-muon');
-		} catch (error: any) {
-			console.error('Lỗi API create request:', error);
-			message.error(error?.data?.message || 'Gửi yêu cầu thất bại. Vui lòng kiểm tra lại!');
-		} finally {
-			setSubmitting(false);
-		}
-	};
+    const handleCancel = () => {
+        form.resetFields();
+        history.goBack();
+    };
 
-	const handleCancel = () => {
-		form.resetFields();
-		form.setFieldsValue({ quantity: 1 });
-		message.info('Đã hủy nhập đơn yêu cầu.');
-		history.push('/thiet-bi'); // Hủy thì quay lại trang danh sách
-	};
-
-	return {
-		form,
-		submitting,
-		deviceOptions: devices,
-		changeQuantity,
-		handleSubmit,
-		handleCancel,
-	};
+    return { 
+        form, 
+        submitting, 
+        deviceOptions: devices, 
+        changeQuantity, 
+        handleSubmit,
+        handleCancel 
+    };
 };

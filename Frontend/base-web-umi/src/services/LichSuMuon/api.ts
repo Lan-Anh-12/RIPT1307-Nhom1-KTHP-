@@ -1,15 +1,18 @@
-import { request } from 'umi';
+// Chỉ dùng import axios từ thư viện gốc 'axios' thay vì '@/utils/axios'
+import axiosOriginal from 'axios'; 
 
-// 1. API lấy toàn bộ danh sách lịch sử mượn của User từ Token
-export async function getBorrowHistoryList(): Promise<BorrowHistorySpace.HistoryItem[]> {
-	return request('/api/requests/user', {
-		method: 'GET',
-	});
-}
+const BASE_URL = 'https://ript1307-nhom1-kthp.onrender.com';
 
-// 2. API thực hiện hủy đơn mượn (Lan Anh thiết kế nhận PUT để cập nhật status thành REJECTED)
-export async function cancelBorrowRequest(id: number): Promise<any> {
-	return request(`/api/requests/${id}/cancel`, {
-		method: 'PUT',
-	});
+export async function getBorrowHistoryList() {
+    const name = localStorage.getItem('userName') || '';
+    
+    // Gọi thẳng, bypass qua các interceptor của dự án
+    const res = await axiosOriginal.get(`${BASE_URL}/api/requests/search`, {
+        params: { name: name },
+        headers: { 
+            'Authorization': 'Bearer ' + localStorage.getItem("token") 
+        }
+    });
+    
+    return res.data;
 }

@@ -1,50 +1,47 @@
 import { useState, useCallback } from 'react';
-import { getDashboardStatistics } from '@/services/Dashboard/api';
+import { getTopDevices, getBorrowStats } from '@/services/Dashboard/api';
 
 export default function useDeviceDashboardModel() {
   const [loading, setLoading] = useState<boolean>(false);
-
-  // 1. Số liệu của 4 ô Card tổng quan trên cùng (Mặc định bằng 0)
   const [summaryData, setSummaryData] = useState<DashboardAPI.SummaryData>({
-    totalRequests: 0,
-    approved: 0,
-    overdue: 0,
-    lowStock: 0,
+    totalRequests: 0, approved: 0, overdue: 0, lowStock: 0,
   });
-
-  // 2. Mảng dữ liệu cho biểu đồ Cột đứng
   const [topDevicesData, setTopDevicesData] = useState<DashboardAPI.TopDeviceItem[]>([]);
-
-  // 3. Mảng dữ liệu cho biểu đồ Donut
   const [statusDistributionData, setStatusDistributionData] = useState<DashboardAPI.StatusDistributionItem[]>([]);
 
-  /** Hàm fetch dữ liệu kết nối trực tiếp với Endpoint Backend */
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
     try {
-      // Gọi Service API và ép kiểu về DashboardDataResponse của bạn
-      const res = (await getDashboardStatistics()) as DashboardAPI.DashboardDataResponse;
+      const [topRes, statsRes] = await Promise.all([
+        getTopDevices(5),
+        getBorrowStats()
+      ]);
 
-      // Xử lý khi Backend phản hồi thành công và có dữ liệu
-      if (res && res.success && res.data) {
-        const { summary, topDevices, statusDistribution } = res.data;
+      const topDevices = (topRes as any) || [];
+      const statsList = (statsRes as any) || []; // Mảng chứa các trạng thái
 
-        setSummaryData(summary || { totalRequests: 0, approved: 0, overdue: 0, lowStock: 0 });
-        setTopDevicesData(topDevices || []);
-        setStatusDistributionData(statusDistribution || []);
-      }
+      setTopDevicesData(topDevices);
+      setStatusDistributionData(statsList);
+
+      // 🌟 KHỚP DỮ LIỆU VÀO 4 Ô CARD
+      // Giả sử statsList là: [{status: "APPROVED", count: 3}, {status: "OVERDUE", count: 1}, ...]
+      const total = statsList.reduce((sum: number, item: any) => sum + (item.count || 0), 0);
+      const approved = statsList.find((i: any) => i.status === 'APPROVED')?.count || 0;
+      const overdue = statsList.find((i: any) => i.status === 'OVERDUE')?.count || 0;
+
+      setSummaryData({
+        totalRequests: total,
+        approved: approved,
+        overdue: overdue,
+        lowStock: 0, // Nếu API không trả về tồn kho, bạn có thể để 0 hoặc lấy từ API khác
+      });
+
     } catch (error) {
-      console.error(' Lỗi kết nối hoặc Backend chưa bật API Dashboard:', error);
+      console.error('Lỗi tải Dashboard:', error);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  return {
-    loading,
-    summaryData,
-    topDevicesData,
-    statusDistributionData,
-    fetchDashboardData,
-  };
+  return { loading, summaryData, topDevicesData, statusDistributionData, fetchDashboardData };
 }

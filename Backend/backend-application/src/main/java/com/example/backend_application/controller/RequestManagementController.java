@@ -5,6 +5,7 @@ import com.example.backend_application.dto.ServiceRequestDTO;
 import com.example.backend_application.service.RequestManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,19 +13,20 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/requests")
-@CrossOrigin(origins = "*") 
 public class RequestManagementController {
 
     @Autowired
     private RequestManagementService requestManagementService;
 
     // Lấy tất cả yêu cầu
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/all")
     public ResponseEntity<List<ServiceRequestDTO>> getAllRequests() {
         return ResponseEntity.ok(requestManagementService.getAllRequests());
     }
 
     // Tìm kiếm yêu cầu theo tên sinh viên
+    @PreAuthorize("hasAnyAuthority('ADMIN','STUDENT')")
     @GetMapping("/search")
     public ResponseEntity<List<ServiceRequestDTO>> searchRequests(
             @RequestParam(value = "name", required = false, defaultValue = "") String name
@@ -33,6 +35,7 @@ public class RequestManagementController {
     }
 
     // --- MỚI THÊM VÀO: API tìm kiếm lịch sử mượn theo từ khóa ---
+    @PreAuthorize("hasAnyAuthority('ADMIN','STUDENT')") // Cả ADMIN và STUDENT đều có thể tìm kiếm lịch sử
     @GetMapping("/search-history")
     public ResponseEntity<List<ServiceRequestDTO>> searchHistory(
             @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword
@@ -42,6 +45,7 @@ public class RequestManagementController {
     // --- KẾT THÚC PHẦN MỚI THÊM ---
 
     // Lấy chi tiết 1 yêu cầu (Dùng cho cả Popup Duyệt và Popup Ghi nhận trả)
+    @PreAuthorize("hasAnyAuthority('ADMIN','STUDENT')")
     @GetMapping("/{id}")
     public ResponseEntity<ServiceRequestDTO> getRequestById(@PathVariable("id") Long id) {
         ServiceRequestDTO requestDTO = requestManagementService.getRequestById(id);
@@ -50,6 +54,7 @@ public class RequestManagementController {
 
     // API Xử lý nghiệp vụ: Chuyển trạng thái (PENDING -> APPROVED/REJECTED) 
     // và (APPROVED -> RETURNED)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/{id}/status")
     public ResponseEntity<?> updateRequestStatus(@PathVariable("id") Long id, @RequestBody Map<String, String> requestBody) {
         String status = requestBody.get("status");
@@ -64,6 +69,7 @@ public class RequestManagementController {
     /**
      * API Gửi yêu cầu mượn thiết bị mới
      */
+    @PreAuthorize("hasAuthority( 'STUDENT')")
     @PostMapping("/create")
     public ResponseEntity<?> createBorrowRequest(@RequestBody BorrowCreateRequestDTO requestDTO) {
         try {

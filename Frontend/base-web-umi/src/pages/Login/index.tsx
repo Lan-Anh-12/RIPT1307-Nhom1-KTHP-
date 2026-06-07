@@ -10,7 +10,10 @@ const LoginPage: React.FC = () => {
         justifyContent: 'center', 
         alignItems: 'center', 
         minHeight: '100vh', 
-        backgroundColor: '#f0f2f5',
+        backgroundImage: "url('https://cdn.phototourl.com/free/2026-06-06-407dc56a-3731-46a1-8aa9-4fb6c4822ad8.png')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
         padding: '0 16px'
       }}
     >
@@ -30,7 +33,7 @@ const LoginPage: React.FC = () => {
                   margin: 0, 
                   fontWeight: 700, 
                   fontSize: '24px', 
-                  color: '#1cff18',
+                  color: '#3dcb3b',
                   letterSpacing: '0.5px'
                 }}
               >

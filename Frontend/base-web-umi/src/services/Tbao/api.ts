@@ -1,22 +1,23 @@
-import { request } from 'umi';
+// Sửa file api.ts
+import axios from 'axios'; // Dùng trực tiếp axios thay vì import từ utils/axios
 
-// 1. API lấy toàn bộ danh sách thông báo của người dùng hiện tại (bóc tách qua Token)
-export async function getNotificationList(): Promise<NotificationSpace.NotificationItem[]> {
-	return request('/api/notifications', {
-		method: 'GET',
-	});
+const BASE_URL = 'https://ript1307-nhom1-kthp.onrender.com';
+
+export async function getNotificationList() {
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('token'); // Đảm bảo key này đúng với lúc bạn lưu sau khi login
+
+    return (await axios.get(`${BASE_URL}/api/notifications/user/${userId}`, {
+        headers: {
+            'Authorization': `Bearer ${token}` // Phải có tiền tố "Bearer "
+        }
+    })).data;
 }
 
-// 2. API đánh dấu đã đọc một thông báo cụ thể
 export async function markNotificationAsRead(id: number): Promise<any> {
-	return request(`/api/notifications/${id}/read`, {
-		method: 'PUT',
-	});
-}
-
-// 3. API đánh dấu đã đọc toàn bộ thông báo của người dùng này
-export async function markAllNotificationsAsRead(): Promise<any> {
-	return request('/api/notifications/read-all', {
-		method: 'PUT',
-	});
+    return axios.put(`${BASE_URL}/api/notifications/${id}/read`, {}, {
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem("token")
+        }
+    });
 }

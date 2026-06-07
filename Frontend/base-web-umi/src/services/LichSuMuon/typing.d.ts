@@ -1,21 +1,23 @@
 declare namespace BorrowHistorySpace {
-	// Cấu trúc dữ liệu chuẩn trả về từ BorrowResponseDTO của Java
-	interface HistoryItem {
-		id: number; // ID tự tăng kiểu Long dưới DB
-		deviceItemId: number;
-		deviceName: string; // Tên thiết bị tương ứng
-		quantity: number; // Số lượng mượn
-		requestDate: string; // Ngày gửi yêu cầu (YYYY-MM-DD)
-		expectedReturnDate: string; // Ngày hẹn trả (YYYY-MM-DD)
-		actualReturnDate: string | null; // Ngày trả thực tế
-		status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'RETURNED'; // Enum chuẩn hệ thống
-	}
+    interface HistoryItem {
+        idRequest: number;        // Khớp với private Long idRequest;
+        studentId: number;        // Khớp với private Long studentId;
+        studentName: string;      // Khớp với private String studentName;
+        device: string;           // Khớp với private String device; (Tên thiết bị)
+        quantity: number;         // Khớp với private Integer quantity;
+        requestDate: string;      // Khớp với private LocalDate requestDate;
+        actualReturnDate: string | null;
+        expectedReturnDate: string;
+        status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'RETURNED' | string;
+        totalRequest: number;     // Khớp với private Integer totalRequest;
+        email: string;            // Khớp với private String email;
+    }
 
-	// Thống kê số lượng dựa theo Enum hệ thống
-	interface HistoryStats {
-		pending: number;
-		approved: number;
-		rejected: number;
-		returned: number;
-	}
+    // Bổ sung mảnh ghép còn thiếu này:
+    interface HistoryStats {
+        pending: number;
+        approved: number;
+        rejected: number;
+        returned: number;
+    }
 }
