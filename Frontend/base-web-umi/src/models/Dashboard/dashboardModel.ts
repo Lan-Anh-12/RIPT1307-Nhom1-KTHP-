@@ -23,17 +23,19 @@ export default function useDeviceDashboardModel() {
       setTopDevicesData(topDevices);
       setStatusDistributionData(statsList);
 
-      // 🌟 KHỚP DỮ LIỆU VÀO 4 Ô CARD
+      //  KHỚP DỮ LIỆU VÀO 4 Ô CARD
       // Giả sử statsList là: [{status: "APPROVED", count: 3}, {status: "OVERDUE", count: 1}, ...]
       const total = statsList.reduce((sum: number, item: any) => sum + (item.count || 0), 0);
       const approved = statsList.find((i: any) => i.status === 'APPROVED')?.count || 0;
       const overdue = statsList.find((i: any) => i.status === 'OVERDUE')?.count || 0;
+      const rejected = statsList.find((i: any) => i.status === 'REJECTED')?.count || 0;
 
       setSummaryData({
         totalRequests: total,
         approved: approved,
         overdue: overdue,
-        lowStock: 0, // Nếu API không trả về tồn kho, bạn có thể để 0 hoặc lấy từ API khác
+        lowStock: 0, 
+        rejected:rejected,
       });
 
     } catch (error) {
