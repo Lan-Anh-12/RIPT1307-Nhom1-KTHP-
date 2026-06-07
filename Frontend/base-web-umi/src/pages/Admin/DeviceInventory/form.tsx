@@ -33,7 +33,7 @@ const DeviceFormModal: React.FC<DeviceFormModalProps> = ({ open, onClose, record
           setFileList([
             {
               uid: '-1',
-              name: 'Hình ảnh thiết bị hiện tại',
+              name: 'image.png',
               status: 'done',
               url: record.imageUrl,
             },
