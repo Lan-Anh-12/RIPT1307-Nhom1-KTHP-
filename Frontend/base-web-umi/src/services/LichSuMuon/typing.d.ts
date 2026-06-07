@@ -1,23 +1,24 @@
 declare namespace BorrowHistorySpace {
-    interface HistoryItem {
-        idRequest: number;        // Khớp với private Long idRequest;
-        studentId: number;        // Khớp với private Long studentId;
-        studentName: string;      // Khớp với private String studentName;
-        device: string;           // Khớp với private String device; (Tên thiết bị)
-        quantity: number;         // Khớp với private Integer quantity;
-        requestDate: string;      // Khớp với private LocalDate requestDate;
-        actualReturnDate: string | null;
-        expectedReturnDate: string;
-        status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'RETURNED' | string;
-        totalRequest: number;     // Khớp với private Integer totalRequest;
-        email: string;            // Khớp với private String email;
-    }
+	// Cấu trúc dữ liệu lịch sử mượn trả thiết bị
+	interface HistoryItem {
+		idRequest: number;
+		studentId: number;
+		studentName: string;
+		device: string;
+		quantity: number;
+		requestDate: string;
+		actualReturnDate: string | null;
+		expectedReturnDate: string;
+		status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'RETURNED' | string;
+		totalRequest: number;
+		email: string;
+	}
 
-    // Bổ sung mảnh ghép còn thiếu này:
-    interface HistoryStats {
-        pending: number;
-        approved: number;
-        rejected: number;
-        returned: number;
-    }
+	// Cấu trúc dữ liệu thống kê trạng thái yêu cầu
+	interface HistoryStats {
+		pending: number;
+		approved: number;
+		rejected: number;
+		returned: number;
+	}
 }
