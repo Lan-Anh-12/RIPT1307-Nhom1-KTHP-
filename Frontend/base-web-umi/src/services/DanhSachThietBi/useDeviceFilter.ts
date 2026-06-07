@@ -3,30 +3,33 @@ import { message } from 'antd';
 import { getDeviceList } from './api';
 import type { DeviceType } from './typing';
 
-// Hàm nội bộ hỗ trợ gán màu Badge Antd dựa vào status chữ hoa từ Backend của Lan Anh
+// Hàm gán màu trạng thái (Badge Antd)
 const mapStatusToType = (status?: string): 'success' | 'warning' | 'error' | 'default' => {
 	switch (status?.toUpperCase()) {
 		case 'AVAILABLE':
-			return 'success'; // Màu xanh lá
+			return 'success';
 		case 'MAINTENANCE':
-			return 'warning'; // Màu vàng bảo trì
+			return 'warning';
 		case 'BORROWED':
-			return 'error'; // Màu đỏ đã bị mượn
+			return 'error';
 		default:
-			return 'default'; // Màu xám (DELETED hoặc không rõ)
+			return 'default';
 	}
 };
 
 export const useDeviceFilter = () => {
+	// Khai báo State quản lý bộ lọc và dữ liệu
 	const [selectedCategory, setSelectedCategory] = useState<string>('Tất cả');
 	const [searchText, setSearchText] = useState<string>('');
-	const [allDevices, setAllDevices] = useState<DeviceType[]>([]); // Danh sách gốc từ DB
-	const [devices, setDevices] = useState<DeviceType[]>([]); // Danh sách sau lọc hiển thị lên UI
+	const [allDevices, setAllDevices] = useState<DeviceType[]>([]);
+	const [devices, setDevices] = useState<DeviceType[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
 
+	// Khai báo State quản lý đóng mở Modal chi tiết
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 	const [selectedDevice, setSelectedDevice] = useState<DeviceType | null>(null);
 
+	// Hàm xử lý đóng mở Modal
 	const openDetailModal = (device: DeviceType) => {
 		setSelectedDevice(device);
 		setIsModalOpen(true);
@@ -37,16 +40,14 @@ export const useDeviceFilter = () => {
 		setSelectedDevice(null);
 	};
 
-	// 🔄 EFFECT 1: Gọi API thực tế từ Backend khi người dùng gõ tìm kiếm
+	// Effect gọi API lấy dữ liệu từ Server theo từ khóa tìm kiếm
 	useEffect(() => {
 		const fetchDevicesFromServer = async () => {
 			setLoading(true);
 			try {
-				// Gọi thẳng Endpoint /api/devices?keyword=...
 				const response = await getDeviceList(searchText || undefined);
 
 				if (response && Array.isArray(response)) {
-					// 🌟 ĐÃ SỬA: Map thêm trường statusType tự động trước khi nạp vào State
 					const normalizedDevices = response.map((device) => ({
 						...device,
 						statusType: mapStatusToType(device.status),
@@ -61,7 +62,6 @@ export const useDeviceFilter = () => {
 			}
 		};
 
-		// Cơ chế debounce 300ms giữ nguyên chạy rất tốt
 		const delayDebounce = setTimeout(() => {
 			fetchDevicesFromServer();
 		}, 300);
@@ -69,12 +69,11 @@ export const useDeviceFilter = () => {
 		return () => clearTimeout(delayDebounce);
 	}, [searchText]);
 
-	// 🎯 EFFECT 2: Tự động lọc theo Danh mục (Category) ở Frontend
+	// Effect lọc dữ liệu theo Danh mục sản phẩm tại Client
 	useEffect(() => {
 		if (selectedCategory === 'Tất cả') {
 			setDevices(allDevices);
 		} else {
-			// Lọc an toàn bằng cách loại bỏ khoảng trắng và không phân biệt hoa thường
 			const filtered = allDevices.filter(
 				(device) => device.category?.trim().toLowerCase() === selectedCategory.trim().toLowerCase(),
 			);

@@ -1,27 +1,27 @@
 declare namespace BorrowRequestSpace {
-	// Cấu trúc của thiết bị lấy từ bảng device_model (Khớp DeviceResponseDTO)
+	// Cấu trúc của thiết bị lấy từ bảng device_model
 	interface DeviceModel {
-		id: number; // Đổi từ string sang number khớp kiểu Long trong Java
+		id: number;
 		name: string;
-		quantity: number; // 🌟 ĐÃ SỬA: Đổi từ stock sang quantity để hết lỗi gạch đỏ!
+		quantity: number;
 		description?: string;
 		imageUrl?: string;
 		status?: string;
 		categoryId?: number;
 	}
 
-	// Cấu trúc dữ liệu Form người dùng nhập khớp với giao diện mới
+	// Cấu trúc dữ liệu Form người dùng nhập
 	interface FormValues {
-		deviceItemId: number; // Sửa từ deviceId thành deviceItemId
-		expectedReturnDate: any; // Bỏ startDate, chỉ giữ ngày trả dự kiến
+		deviceItemId: number;
+		expectedReturnDate: any;
 		quantity: number;
 	}
 
-	// Cấu trúc dữ liệu chuẩn để gửi lên Server (Khớp BorrowCreateRequestDTO trong Java)
+	// Cấu trúc dữ liệu chuẩn để gửi lên Server
 	interface CreateBorrowPayload {
-		requestDate: string; // Ngày hiện tại YYYY-MM-DD
-		expectedReturnDate: string; // Ngày hẹn trả YYYY-MM-DD
-		deviceItemId: number; // Đổi từ device_model_id thành deviceItemId
+		requestDate: string;
+		expectedReturnDate: string;
+		deviceItemId: number;
 		quantity: number;
 	}
 }

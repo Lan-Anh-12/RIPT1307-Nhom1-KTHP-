@@ -20,7 +20,6 @@ const categories = [
 	'Mạng',
 ];
 
-// Hàm bổ trợ chuyển đổi từ Trạng thái Backend sang Màu sắc & Nhãn tiếng Việt hiển thị
 const getStatusDisplay = (status: string, quantity: number) => {
 	if (quantity <= 0 || status === 'UNAVAILABLE') {
 		return { text: 'Hết hàng', color: '#ff4d4f', bg: '#fff1f0' };
@@ -54,7 +53,6 @@ const DanhSachThietBi: React.FC = () => {
 			style={{
 				padding: '24px',
 				minHeight: '100vh',
-				// 🌟 THÊM LỚP NỀN GRADIENT: Loang dịu mắt từ xanh nhạt sang trắng xám
 				background: 'linear-gradient(135deg, #f4f7f6 0%, #f0f2f5 100%)',
 			}}
 		>
@@ -113,7 +111,6 @@ const DanhSachThietBi: React.FC = () => {
 				<Row gutter={[24, 24]}>
 					{devices.length > 0 ? (
 						devices.map((device: DeviceType) => {
-							// Lấy cấu hình màu sắc tương ứng trạng thái thực tế từ Backend
 							const statusConfig = getStatusDisplay(device.status, device.quantity);
 
 							return (
@@ -141,7 +138,7 @@ const DanhSachThietBi: React.FC = () => {
 											>
 												<img
 													alt={device.name}
-													src={device.imageUrl || 'https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png'} // 🌟 ĐÃ SỬA: Map chuẩn camelCase từ Backend
+													src={device.imageUrl || 'https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png'}
 													style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
 												/>
 											</div>
@@ -159,7 +156,7 @@ const DanhSachThietBi: React.FC = () => {
 												{device.name}
 											</Title>
 											<Badge
-												count={statusConfig.text} // 🌟 ĐÃ SỬA: Chuyển text hiển thị sang Tiếng Việt
+												count={statusConfig.text}
 												style={{
 													backgroundColor: statusConfig.bg,
 													color: statusConfig.color,
@@ -188,7 +185,7 @@ const DanhSachThietBi: React.FC = () => {
 												</Text>
 											</Text>
 											<Text type='secondary' style={{ fontSize: '13px' }}>
-												Tồn kho: {/* 🌟 ĐÃ SỬA: Khớp chuẩn trường dữ liệu device.quantity */}
+												Tồn kho:
 												<Text strong style={{ color: device.quantity === 0 ? '#ff4d4f' : '#1890ff' }}>
 													{device.quantity}
 												</Text>
@@ -208,7 +205,7 @@ const DanhSachThietBi: React.FC = () => {
 				</Row>
 			)}
 
-			{/* POPUP MODAL HIỂN THỊ CHI TIẾT THEO SƠ ĐỒ ĐÃ ĐỒNG BỘ TYPE */}
+			{/* POPUP MODAL HIỂN THỊ CHI TIẾT  */}
 			<DeviceDetailModal isOpen={isModalOpen} device={selectedDevice} onClose={closeDetailModal} />
 		</div>
 	);

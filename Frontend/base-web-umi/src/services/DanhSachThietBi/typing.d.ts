@@ -1,10 +1,10 @@
 export interface DeviceType {
 	id: number;
 	name: string;
-	categoryId?: number; // Cực kỳ quan trọng để lọc danh mục chuẩn
+	categoryId?: number;
 	category: string;
-	status: string; // 'AVAILABLE', 'BORROWED', 'MAINTENANCE', 'DELETED'
-	statusType?: 'success' | 'warning' | 'error' | 'default'; // Map màu chuẩn Antd
+	status: string;
+	statusType?: 'success' | 'warning' | 'error' | 'default';
 	description?: string;
 	quantity: number;
 	imageUrl?: string;

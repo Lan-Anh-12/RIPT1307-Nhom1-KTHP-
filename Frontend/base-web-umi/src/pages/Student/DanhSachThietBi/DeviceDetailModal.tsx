@@ -15,7 +15,6 @@ interface DeviceDetailModalProps {
 const DeviceDetailModal: React.FC<DeviceDetailModalProps> = ({ isOpen, device, onClose }) => {
 	if (!device) return null;
 
-	// 🌟 ĐÃ THÊM: Hàm xử lý map Trạng thái từ Backend sang UI hiển thị của Antd
 	const getStatusDisplay = (status?: string) => {
 		switch (status?.toUpperCase()) {
 			case 'AVAILABLE':
@@ -48,7 +47,6 @@ const DeviceDetailModal: React.FC<DeviceDetailModalProps> = ({ isOpen, device, o
 			centered
 		>
 			<div>
-				{/* Ảnh phóng to */}
 				<div
 					style={{
 						background: '#f5f5f5',
@@ -60,11 +58,10 @@ const DeviceDetailModal: React.FC<DeviceDetailModalProps> = ({ isOpen, device, o
 					}}
 				>
 					<img
-						src={device.imageUrl} // Cấu hình chuẩn từ Backend thật của Lan Anh
+						src={device.imageUrl}
 						alt={device.name}
 						style={{ maxHeight: '200px', maxWidth: '100%', objectFit: 'contain' }}
 						onError={(e) => {
-							// Khi link ảnh bị lỗi, tự động đổi sang ảnh dự phòng mặc định của Antd
 							e.currentTarget.src = 'https://gw.alipayobjects.com/zos/rmsportal/JiqGscbAOlBsTlqOMfCb.png';
 						}}
 					/>
@@ -75,7 +72,6 @@ const DeviceDetailModal: React.FC<DeviceDetailModalProps> = ({ isOpen, device, o
 					{device.name}
 				</Title>
 				<Space style={{ marginBottom: '16px' }} size='middle'>
-					{/* 🌟 ĐÃ SỬA: Dùng cấu hình trạng thái động lấy từ hàm map */}
 					<Badge status={statusConfig.statusType} text={statusConfig.text} />
 					<Text type='secondary'>|</Text>
 					<Text type='secondary'>
@@ -103,7 +99,7 @@ const DeviceDetailModal: React.FC<DeviceDetailModalProps> = ({ isOpen, device, o
 					icon={<SolutionOutlined />}
 					size='large'
 					block
-					disabled={device.status?.toUpperCase() !== 'AVAILABLE'} // 🌟 ĐÃ THÊM: Vô hiệu hóa nút nếu thiết bị đang bận hoặc hỏng
+					disabled={device.status?.toUpperCase() !== 'AVAILABLE'}
 					style={{
 						background: device.status?.toUpperCase() === 'AVAILABLE' ? '#00b96b' : '#d9d9d9',
 						borderColor: device.status?.toUpperCase() === 'AVAILABLE' ? '#00b96b' : '#d9d9d9',
@@ -113,7 +109,7 @@ const DeviceDetailModal: React.FC<DeviceDetailModalProps> = ({ isOpen, device, o
 					}}
 					onClick={() => {
 						onClose();
-						history.push(`/yeu-cau-muon?deviceId=${device.id}`);
+						history.push(`/student/yeu-cau-muon?deviceId=${device.id}`);
 					}}
 				>
 					{device.status?.toUpperCase() === 'AVAILABLE'
