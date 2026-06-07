@@ -1,10 +1,11 @@
 declare namespace DashboardAPI {
-  /** Chỉ số đo lường của 4 ô Card tổng quan trên cùng */
+  /** Chỉ số đo lường của ô Card tổng quan  */
   type SummaryData = {
     totalRequests: number;
     approved: number;
     overdue: number;
-    lowStock: number;
+    rejected: number;
+    lowStock?: number;
   };
 
   /** Cấu trúc khớp với DeviceTopDTO.java */

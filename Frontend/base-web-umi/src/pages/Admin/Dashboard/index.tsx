@@ -6,7 +6,7 @@ import {
   FileTextOutlined, 
   CheckCircleOutlined, 
   ClockCircleOutlined, 
-  WarningOutlined 
+  CloseCircleOutlined 
 } from '@ant-design/icons';
 
 const DeviceDashboard: React.FC = () => {
@@ -26,21 +26,46 @@ const DeviceDashboard: React.FC = () => {
     }
   }, [fetchDashboardData]);
 
-  // 📊 CẤU HÌNH BIỂU ĐỒ CỘT (Top Thiết Bị Mượn)
+  // CẤU HÌNH BIỂU ĐỒ CỘT 
   const columnConfig = {
-    data: topDevicesData,
+    data: topDevicesData || [],
     xField: 'deviceName',
-    yField: 'borrowCount', // 🌟 Đổi trường dữ liệu trục Y theo DeviceTopDTO
+    yField: 'borrowCount', 
+    autoFit: true,
+    padding: 'auto',
+    appendPadding: [10, 10, 20, 10], 
     label: {
       position: 'middle' as const,
       style: {
         fill: '#FFFFFF',
         opacity: 0.8,
+        fontSize: 12,
+        fontWeight: 'bold',
       },
     },
     meta: {
       deviceName: { alias: 'Thiết bị' },
       borrowCount: { alias: 'Lượt mượn' },
+    },
+    xAxis: {
+      label: {
+        autoRotate: true,
+        autoHide: true,
+        style: {
+          fontSize: 11,
+          fill: '#595959',
+        },
+      },
+    },
+    yAxis: {
+      grid: {
+        line: {
+          style: {
+            stroke: '#f0f0f0',
+            lineDash: [4, 4],
+          },
+        },
+      },
     },
     style: {
       fill: '#00a870', 
@@ -49,7 +74,7 @@ const DeviceDashboard: React.FC = () => {
     },
   };
 
-  // 🎨 BẢNG MÀU ĐỒNG BỘ TRẠNG THÁI YÊU CẦU ĐƠN
+  //  BẢNG MÀU ĐỒNG BỘ TRẠNG THÁI YÊU CẦU ĐƠN
   const colorMap: Record<string, string> = {
     'Đã trả': '#00a870',     
     'Đã duyệt': '#e67e22',   
@@ -58,10 +83,10 @@ const DeviceDashboard: React.FC = () => {
     'Quá hạn': '#7f8c8d',    
   };
 
-  // 🍩 CẤU HÌNH BIỂU ĐỒ TRÒN DONUT (Trạng Thái)
+  //  CẤU HÌNH BIỂU ĐỒ TRÒN DONUT 
   const donutConfig = {
-    data: statusDistributionData,
-    angleField: 'count', // 🌟 Đổi góc hiển thị đồ thị theo trường count của StatusStatDTO
+    data: statusDistributionData || [],
+    angleField: 'count', 
     colorField: 'status',
     radius: 1,
     innerRadius: 0.6,
@@ -74,33 +99,35 @@ const DeviceDashboard: React.FC = () => {
         fontWeight: 'bold',
       },
     },
-    color: statusDistributionData.map(item => colorMap[item.status] || '#1890ff'),
+    // Đổ màu chuẩn xác theo trạng thái bằng hàm Callback
+    color: ({ status }: { status: string }) => {
+      return colorMap[status] || '#1890ff';
+    },
     legend: {
       position: 'right' as const,
     },
-    annotations: [
-      {
-        type: 'text',
-        position: ['50%', '45%'],
-        content: 'Tổng đơn',
+
+    statistic: {
+      title: {
+        offsetY: -12,
         style: {
-          fontSize: 14,
-          fill: '#8c8c8c',
+          fontSize: '14px',
+          color: '#8c8c8c',
           textAlign: 'center',
         },
+        formatter: () => 'Tổng đơn',
       },
-      {
-        type: 'text',
-        position: ['50%', '55%'],
-        content: `${summaryData?.totalRequests || 0}`,
+      content: {
+        offsetY: 12,
         style: {
-          fontSize: 24,
-          bold: true,
-          fill: '#1f1f1f',
+          fontSize: '24px',
+          fontWeight: 'bold',
+          color: '#1f1f1f',
           textAlign: 'center',
         },
+        formatter: () => `${summaryData?.totalRequests || 0}`,
       },
-    ],
+    },
   };
 
   return (
@@ -120,7 +147,7 @@ const DeviceDashboard: React.FC = () => {
             <Card bordered={false} bodyStyle={{ padding: '20px 24px' }} style={{ borderRadius: '12px', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
               <Statistic
                 title={<span style={{ color: '#8c8c8c' }}>Yêu cầu hệ thống</span>}
-                value={summaryData.totalRequests}
+                value={summaryData?.totalRequests || 0}
                 valueStyle={{ fontWeight: 'bold', fontSize: '26px', color: '#1f1f1f' }}
                 prefix={<FileTextOutlined style={{ color: '#00a870', backgroundColor: '#e6f7ff', padding: '8px', borderRadius: '8px', marginRight: '8px' }} />}
               />
@@ -129,8 +156,8 @@ const DeviceDashboard: React.FC = () => {
           <Col xs={24} sm={12} md={6}>
             <Card bordered={false} bodyStyle={{ padding: '20px 24px' }} style={{ borderRadius: '12px', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
               <Statistic
-                title={<span style={{ color: '#8c8c8c' }}>Đang mượn (Đã duyệt)</span>}
-                value={summaryData.approved}
+                title={<span style={{ color: '#8c8c8c' }}>Đang mượn</span>}
+                value={summaryData?.approved || 0}
                 valueStyle={{ fontWeight: 'bold', fontSize: '26px', color: '#1f1f1f' }}
                 prefix={<CheckCircleOutlined style={{ color: '#2f54eb', backgroundColor: '#f0f5ff', padding: '8px', borderRadius: '8px', marginRight: '8px' }} />}
               />
@@ -139,8 +166,8 @@ const DeviceDashboard: React.FC = () => {
           <Col xs={24} sm={12} md={6}>
             <Card bordered={false} bodyStyle={{ padding: '20px 24px' }} style={{ borderRadius: '12px', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
               <Statistic
-                title={<span style={{ color: '#8c8c8c' }}>Sinh viên quá hạn trả</span>}
-                value={summaryData.overdue}
+                title={<span style={{ color: '#8c8c8c' }}>Quá hạn </span>}
+                value={summaryData?.overdue || 0}
                 valueStyle={{ fontWeight: 'bold', fontSize: '26px', color: '#b30000' }}
                 prefix={<ClockCircleOutlined style={{ color: '#b30000', backgroundColor: '#fff1f0', padding: '8px', borderRadius: '8px', marginRight: '8px' }} />}
               />
@@ -149,10 +176,10 @@ const DeviceDashboard: React.FC = () => {
           <Col xs={24} sm={12} md={6}>
             <Card bordered={false} bodyStyle={{ padding: '20px 24px' }} style={{ borderRadius: '12px', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
               <Statistic
-                title={<span style={{ color: '#8c8c8c' }}>Tồn kho</span>}
-                value={summaryData.lowStock}
-                valueStyle={{ fontWeight: 'bold', fontSize: '26px', color: '#fa8c16' }}
-                prefix={<WarningOutlined style={{ color: '#fa8c16', backgroundColor: '#fff7e6', padding: '8px', borderRadius: '8px', marginRight: '8px' }} />}
+                title={<span style={{ color: '#8c8c8c' }}>Từ chối</span>}
+                value={summaryData?.rejected || 0} 
+                valueStyle={{ fontWeight: 'bold', fontSize: '26px', color: '#d63031' }}
+                prefix={<CloseCircleOutlined style={{ color: '#d63031', backgroundColor: '#fff1f0', padding: '8px', borderRadius: '8px', marginRight: '8px' }} />}
               />
             </Card>
           </Col>
