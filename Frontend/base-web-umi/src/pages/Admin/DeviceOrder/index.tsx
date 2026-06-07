@@ -31,7 +31,7 @@ const DeviceOrder: React.FC = () => {
     fetchRequests({ keyword: searchText, status: statusFilter });
   };
 
-  // 🔍 Mở Popup khi click xem chi tiết đơn - Kích hoạt API lấy từ Database qua mã idRequest thật
+  //  Mở Popup khi click xem chi tiết đơn - Kích hoạt API lấy từ Database qua mã idRequest thật
   const handleOpenDetails = async (record: DeviceRequest.RequestItem) => {
     if (fetchRequestDetail) {
       await fetchRequestDetail(record.idRequest);
@@ -39,7 +39,7 @@ const DeviceOrder: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  // 📋 Cấu hình các cột của bảng hiển thị - Đã map chuẩn 100% trường dữ liệu Java DTO
+  //  Cấu hình các cột của bảng hiển thị - Đã map chuẩn 100% trường dữ liệu Java DTO
   const columns = [
     { 
       title: 'Mã yêu cầu', 
@@ -54,7 +54,7 @@ const DeviceOrder: React.FC = () => {
       render: (_: any, record: DeviceRequest.RequestItem) => (
         <div>
           <b style={{ color: '#262626' }}>{record.studentName}</b>
-          <div style={{ fontSize: '12px', color: '#8c8c8c' }}>ID Sinh viên: {record.studentId}</div>
+          <div style={{ fontSize: '12px', color: '#8c8c8c' }}>MSV{record.studentId}</div>
         </div>
       )
     },
