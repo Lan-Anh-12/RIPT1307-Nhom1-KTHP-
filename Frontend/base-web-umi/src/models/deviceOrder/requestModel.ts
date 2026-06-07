@@ -21,8 +21,7 @@ export default function useRequestModel() {
   const fetchRequests = useCallback(async (filters?: { keyword?: string; status?: string }) => {
     setLoading(true);
     try {
-      let resList: DeviceRequest.RequestItem[] = [];
-      
+let   resList: any = [];      
       if (filters?.keyword && filters.keyword.trim() !== '') {
         resList = await searchRequestsByName(filters.keyword.trim());
       } else {
@@ -30,6 +29,7 @@ export default function useRequestModel() {
       }
 
       const dataList = Array.isArray(resList) ? resList : (resList as any)?.data || [];
+      dataList.sort((a: any, b: any) => Number(b.id) - Number(a.id));
       
       // Lọc local theo Tab trạng thái hiển thị trên giao diện Antd
       if (filters?.status && filters.status !== 'ALL') {

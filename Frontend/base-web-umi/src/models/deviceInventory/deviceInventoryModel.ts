@@ -38,7 +38,7 @@ export default function useDeviceInventoryModel() {
     }
   };
 
-  /** 🔄 1. Tải danh sách thiết bị */
+  /**  1. Tải danh sách thiết bị */
   const fetchDevices = useCallback(async (filters?: { keyword?: string; categoryId?: number }) => {
     setLoading(true);
     try {
@@ -49,11 +49,27 @@ export default function useDeviceInventoryModel() {
       const res = await getInventoryList(params);
       let dataList = Array.isArray(res) ? res : (res as any)?.data || [];
 
+      dataList.sort((a: any, b: any) => Number(b.id) - Number(a.id)); // sắp xếp tt
+
+      //  Tự động map tên danh mục dựa vào ID nhận từ Backend
+      dataList = dataList.map((item: any) => {
+        const currentId = item.categoryId || item.category?.id;
+        const matchedCategory = categories.find(c => c.value === Number(currentId));
+        
+        return {
+          ...item,
+          // Ghi đè chữ tiếng Việt vào các thuộc tính hiển thị thông dụng để Table Antd nhận diện được
+          category: matchedCategory ? matchedCategory.label : 'Khác',
+          categoryName: matchedCategory ? matchedCategory.label : 'Khác'
+        };
+      });
+
       // Bộ lọc danh mục local hộ Backend
       if (filters?.categoryId) {
-        dataList = dataList.filter((item: DeviceInventory.InventoryItem) => 
-          item.category?.id === filters.categoryId || item.categoryId === filters.categoryId
-        );
+        dataList = dataList.filter((item: any) => {
+          const currentId = item.categoryId || item.category?.id;
+          return Number(currentId) === filters.categoryId;
+        });
       }
 
       setDevices(dataList);

@@ -18,7 +18,7 @@ const DeviceInventory: React.FC = () => {
     fetchDevices();
   }, [fetchDevices]);
 
-  /**  Hàm kích hoạt lệnh tìm kiếm kết hợp cả keyword và bộ lọc local categoryId */
+  /** Hàm kích hoạt lệnh tìm kiếm kết hợp cả keyword và bộ lọc local categoryId */
   const handleSearch = (keyword: string, categoryId?: number) => {
     fetchDevices({ keyword, categoryId });
   };
@@ -43,10 +43,29 @@ const DeviceInventory: React.FC = () => {
     },
     { 
       title: 'Danh mục', 
-      dataIndex: 'category', 
+      dataIndex: 'categoryName', // Chuyển index sang nhận diện từ trường dữ liệu chữ đã được map chuỗi chuẩn
       key: 'category', 
       align: 'center' as const,
-      render: (category: DeviceInventory.InventoryItem['category']) => category?.name || 'Khác'
+      render: (_: any, record: any) => {
+        if (record.categoryName && record.categoryName !== 'Khác') return record.categoryName;
+        if (typeof record.category === 'string' && record.category !== 'Khác') return record.category;
+        
+        // Tự động tra cứu ID nếu phát hiện Backend chỉ gửi ID số
+        const currentId = record.categoryId || record.category?.id;
+        const categoryMap: Record<number, string> = {
+          1: 'Máy chiếu',
+          2: 'Mạng',
+          3: 'Bảng tương tác',
+          4: 'Laptop',
+          5: 'Âm thanh',
+          6: 'Máy quay',
+          7: 'Màn hình',
+          8: 'Máy in',
+          9: 'Bộ đàm',
+        };
+        
+        return categoryMap[Number(currentId)] || 'Khác';
+      }
     },
     { 
       title: 'Số lượng', 
@@ -100,7 +119,6 @@ const DeviceInventory: React.FC = () => {
         >
           Thêm thiết bị
         </Button>
-
       </div>
 
       {/* THANH BỘ LỌC TÌM KIẾM */}
@@ -152,9 +170,12 @@ const DeviceInventory: React.FC = () => {
       {/* KHUNG MODAL POPUP FORM */}
       <DeviceFormModal
         open={modalOpen}
-        onClose={() => {
+        onClose={(needRefresh?: any) => {
           setModalOpen(false);
           handleSearch(searchText, categoryFilter);
+          if (needRefresh) {
+            handleSearch(searchText, categoryFilter);
+          }
         }}
         record={selectedRecord}
       />

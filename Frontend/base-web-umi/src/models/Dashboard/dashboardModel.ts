@@ -4,7 +4,7 @@ import { getTopDevices, getBorrowStats } from '@/services/Dashboard/api';
 export default function useDeviceDashboardModel() {
   const [loading, setLoading] = useState<boolean>(false);
   const [summaryData, setSummaryData] = useState<DashboardAPI.SummaryData>({
-    totalRequests: 0, approved: 0, overdue: 0, lowStock: 0,
+    totalRequests: 0, approved: 0, overdue: 0, lowStock: 0, rejected:0
   });
   const [topDevicesData, setTopDevicesData] = useState<DashboardAPI.TopDeviceItem[]>([]);
   const [statusDistributionData, setStatusDistributionData] = useState<DashboardAPI.StatusDistributionItem[]>([]);
