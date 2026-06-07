@@ -1,15 +1,15 @@
-import { request } from 'umi';
+import axios from '@/utils/axios';
+
+const BASE_URL = 'https://ript1307-nhom1-kthp.onrender.com';
 
 // 1. API lấy toàn bộ danh sách lịch sử mượn của User từ Token
 export async function getBorrowHistoryList(): Promise<BorrowHistorySpace.HistoryItem[]> {
-	return request('/api/requests/user', {
-		method: 'GET',
-	});
+    const response = await axios.get(`${BASE_URL}/api/requests/user`);
+    return response.data;
 }
 
-// 2. API thực hiện hủy đơn mượn (Lan Anh thiết kế nhận PUT để cập nhật status thành REJECTED)
+// 2. API thực hiện hủy đơn mượn
 export async function cancelBorrowRequest(id: number): Promise<any> {
-	return request(`/api/requests/${id}/cancel`, {
-		method: 'PUT',
-	});
+    const response = await axios.put(`${BASE_URL}/api/requests/${id}/cancel`);
+    return response.data;
 }
