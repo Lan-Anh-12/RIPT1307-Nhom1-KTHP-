@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Test API Tìm kiếm thiết bị</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        #result { margin-top: 20px; padding: 10px; background: #333; color: #0f0; border-radius: 5px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+
+    <h2>Kiểm tra API Tìm kiếm thiết bị</h2>
+    <input type="text" id="keyword" placeholder="Nhập tên thiết bị...">
+    <button onclick="searchDevice()">Tìm kiếm</button>
+
+    <div id="result">Kết quả sẽ hiển thị ở đây...</div>
+
+    <script>
+        async function searchDevice() {
+            const keyword = document.getElementById('keyword').value;
+            const resDiv = document.getElementById('result');
+            
+            try {
+                // Gọi tới Controller của bạn tại /api/devices
+                const response = await fetch(`http://localhost:8080/api/devices?keyword=${encodeURIComponent(keyword)}`);
+                const data = await response.json();
+                
+                // Hiển thị kết quả định dạng JSON
+                resDiv.textContent = JSON.stringify(data, null, 4);
+            } catch (error) {
+                resDiv.textContent = "Lỗi kết nối API: " + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

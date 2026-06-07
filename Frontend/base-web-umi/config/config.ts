@@ -2,8 +2,6 @@
 import { defineConfig } from 'umi';
 import defaultSettings from './defaultSettings';
 import routes from './routes';
-// import proxy from './proxy';
-// const { REACT_APP_ENV } = process.env;
 
 export default defineConfig({
 	hash: true,
@@ -42,7 +40,16 @@ export default defineConfig({
 	esbuild: {},
 	title: false,
 	ignoreMomentLocale: true,
-	// proxy: proxy[REACT_APP_ENV || 'dev'],
+
+	// 🌟 ĐÃ MỞ KHÓA & CẬP NHẬT: Định tuyến API sang Backend thực tế
+	proxy: {
+		'/api': {
+			target: 'http://localhost:8080', // Thay đổi cổng nếu Lan Anh chạy cổng khác (ví dụ: 8081, 5000)
+			changeOrigin: true,
+			pathRewrite: { '^/api': '/api' },
+		},
+	},
+
 	manifest: {
 		basePath: '/',
 	},

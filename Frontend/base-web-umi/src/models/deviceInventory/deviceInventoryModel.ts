@@ -13,10 +13,10 @@ export default function useDeviceInventoryModel() {
     { value: 3, label: 'Bảng tương tác' },
     { value: 4, label: 'Laptop' },
     { value: 5, label: 'Âm thanh' },
-    { value: 5, label: 'Máy quay' },
-    { value: 5, label: 'Màn hình' },
-    { value: 5, label: 'Máy in' },
-    { value: 5, label: 'Bộ đàm' },
+    { value: 6, label: 'Máy quay' },
+    { value: 7, label: 'Màn hình' },
+    { value: 8, label: 'Máy in' },
+    { value: 9, label: 'Bộ đàm' },
   ];
 
   const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dyfrsmo2t/image/upload';

@@ -1,31 +1,8 @@
-import Footer from '@/components/Footer';
-//import RightContent from '@/components/RightContent';
-import { LogoutOutlined } from '@ant-design/icons'; //  Import icon Đăng xuất
-//import { notification } from 'antd';
-//import 'moment/locale/vi';
 import { history, RunTimeLayoutConfig } from 'umi';
-//import { getIntl, getLocale, history } from 'umi';
-//import type { RequestOptionsInit, ResponseError } from 'umi-request';
-//import ErrorBoundary from './components/ErrorBoundary';
-// import LoadingPage from './components/Loading';
-//import { OIDCBounder } from './components/OIDCBounder';
-//import { unCheckPermissionPaths } from './components/OIDCBounder/constant';
-//import OneSignalBounder from './components/OneSignalBounder';
-//import TechnicalSupportBounder from './components/TechnicalSupportBounder';
-//import type { IInitialState } from './services/base/typing';
-import './styles/global.less';
-//import { currentRole } from './utils/ip';
 import { AppInitialState } from '@/services/login/typing';
+import Footer from '@/components/Footer';
+import { LogoutOutlined } from '@ant-design/icons';
 
-/** loading */
-// //export const initialStateConfig = {
-//     loading: <></>,
-// };
-
-/**
- * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
- * // Tobe removed
- * */
 export async function getInitialState(): Promise<AppInitialState> {
   const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
@@ -87,7 +64,6 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       const { location } = history;
       const token = localStorage.getItem('token');
       
-      // Nếu lộ trình đang di chuyển tới hoặc đang đứng ở login -> Thoát luôn, cấm check quyền
       if (location.pathname === '/login') {
         return;
       }

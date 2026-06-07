@@ -71,6 +71,7 @@ const DeviceFormModal: React.FC<DeviceFormModalProps> = ({ open, onClose, record
         <Form.Item label="Số lượng tồn kho" name="stock" rules={[{ required: true, message: 'Nhập số lượng!' }]}>
           <InputNumber min={0} style={{ width: '100%', borderRadius: '8px' }} />
         </Form.Item>
+        {/* TẢI ẢNH */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
         <span style={{lineHeight: '32px'}}>
           Hình ảnh thiết bị

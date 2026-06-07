@@ -7,7 +7,8 @@ export async function getInventoryList(params?: { keyword?: string }) {
   // Trả về kiểu dữ liệu là một mảng InventoryItem đã định nghĩa trong typings
   return request<DeviceInventory.InventoryItem[]>(`${BASE_URL}/api/devices`, { 
     method: 'GET', 
-    params 
+    params,
+    skipErrorHandler: true,
   });
 }
 

@@ -8,7 +8,7 @@ import type { AppInitialState } from './services/login/typing';
 	// const scopes = initialState.authorizedPermissions?.find((item) => item.rsname === currentRole)?.scopes;
 	//const scopes = initialState.authorizedPermissions?.map((item) => item.scopes).flat();
 
-//	return {
+	//return {
 		// canBoQLKH: token && vaiTro && vaiTro === 'can_bo_qlkh',
 		// lanhDao: token && vaiTro && vaiTro === 'lanh_dao',
 		// sinhVienVaNhanVien: token && vaiTro && ['nhan_vien', 'sinh_vien'].includes(vaiTro),
@@ -60,7 +60,7 @@ import type { AppInitialState } from './services/login/typing';
 		//     : (route: any) => {
 		//         return handlePhanNhom(initialState, route?.maChucNang) || false;
 		//       },
-//	};
+	//};
 //}
 export default function access(initialState: AppInitialState | undefined) {
   const { currentUser } = initialState ?? {};

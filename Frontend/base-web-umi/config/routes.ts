@@ -1,5 +1,5 @@
-﻿export default [
-  // TRANG ĐĂNG NHẬP
+export default [
+  // 1. TRANG ĐĂNG NHẬP
   {
     path: '/login',
     name: 'Đăng nhập',
@@ -8,16 +8,18 @@
     hideInMenu: true,
   },
   
+  // 2. ĐIỀU HƯỚNG MẶC ĐỊNH - SỬA LẠI ĐỂ KHÔNG BỊ VÒNG LẶP
+  // Nếu đã đăng nhập, ở app.tsx ta sẽ redirect user về đúng trang của họ sau.
   {
     path: '/',
     redirect: '/login',
   },
 
-  //  QUẢN TRỊ (ADMIN)
+  // 3. CỤM LAYOUT QUẢN TRỊ (ADMIN)
   {
     path: '/admin',
     name: 'Hệ thống Quản lý',
-    access: 'isAdmin', 
+    access: 'isAdmin', // PHẢI KHỚP VỚI KEY TRONG ACCESS.TS
     flatMenu: true,
     routes: [
       { path: '/admin/device-order', name: 'Quản lý yêu cầu', component: './Admin/DeviceOrder/index',icon:'Table',  },
@@ -28,7 +30,7 @@
     ],
   },
 
-  // SINH VIÊN (STUDENT)
+  // 4. CỤM LAYOUT SINH VIÊN (STUDENT)
   {
     path: '/student',
     name: 'Sinh viên',
@@ -43,47 +45,47 @@
       { path: '/student', redirect: '/student/danh-sach-thiet-bi' },
     ],
   },
-]  
+  
 
 
-//   // 5. CÁC ĐỊNH TUYẾN PHỤ VÀ HỆ THỐNG KHÁC
-//   {
-//     path: '/gioi-thieu',
-//     name: 'About',
-//     component: './TienIch/GioiThieu',
-//     hideInMenu: true,
-//   },
-//   {
-//     path: '/notification',
-//     layout: false,
-//     hideInMenu: true,
-//     routes: [
-//       {
-//         path: './subscribe',
-//         exact: true,
-//         component: './ThongBao/Subscribe',
-//       },
-//       {
-//         path: './check',
-//         exact: true,
-//         component: './ThongBao/Check',
-//       },
-//       {
-//         path: './',
-//         exact: true,
-//         component: './ThongBao/NotifOneSignal',
-//       },
-//     ],
-//   },
+  // 5. CÁC ĐỊNH TUYẾN PHỤ VÀ HỆ THỐNG KHÁC
+  {
+    path: '/gioi-thieu',
+    name: 'About',
+    component: './TienIch/GioiThieu',
+    hideInMenu: true,
+  },
+  {
+    path: '/notification',
+    layout: false,
+    hideInMenu: true,
+    routes: [
+      {
+        path: './subscribe',
+        exact: true,
+        component: './ThongBao/Subscribe',
+      },
+      {
+        path: './check',
+        exact: true,
+        component: './ThongBao/Check',
+      },
+      {
+        path: './',
+        exact: true,
+        component: './ThongBao/NotifOneSignal',
+      },
+    ],
+  },
 
-//   // 6. TRANG LỖI HỆ THỐNG (NẰM DƯỚI CÙNG ĐỂ BẮT ROUTE CHÍNH XÁC)
+  // 6. TRANG LỖI HỆ THỐNG (NẰM DƯỚI CÙNG ĐỂ BẮT ROUTE CHÍNH XÁC)
 
-//   {
-//     path: '/hold-on',
-//     component: './exception/DangCapNhat',
-//     layout: false,
-//   },
-//   {
-//     component: './exception/404',
-//   },
-// ];
+  {
+    path: '/hold-on',
+    component: './exception/DangCapNhat',
+    layout: false,
+  },
+  {
+    component: './exception/404',
+  },
+];
