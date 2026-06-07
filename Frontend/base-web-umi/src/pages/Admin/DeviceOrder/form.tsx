@@ -244,14 +244,6 @@ const DetailModal: React.FC<DetailModalProps> = ({ open, onClose, record, loadin
                       <Timeline.Item color="red">
                         <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#f5222d' }}>Hệ thống tự động quét: Thiết bị quá hạn hoàn trả!</div>
                         <div style={{ color: '#8c8c8c', fontSize: '12px', marginTop: '2px' }}>Hạn trả quy định ban đầu: {record.expectedReturnDate}</div>
-                        <Button 
-                          type="primary" 
-                          icon={<RollbackOutlined />} 
-                          onClick={() => handleAction('RETURNED')} 
-                          style={{ backgroundColor: '#b30000', borderColor: '#b30000', marginTop: '8px', borderRadius: '4px' }}
-                        >
-                          Cưỡng chế ghi nhận trả đồ
-                        </Button>
                       </Timeline.Item>
                     </>
                   )}

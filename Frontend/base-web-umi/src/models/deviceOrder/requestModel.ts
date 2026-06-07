@@ -4,7 +4,6 @@ import {
   searchRequestsByName, 
   getRequestById,  
   updateOrderStatus, 
-  getAllNotifications 
 } from '@/services/DeviceOrder/api'; 
 import { message } from 'antd';
 
@@ -17,8 +16,6 @@ export default function useRequestModel() {
   const [detailLoading, setDetailLoading] = useState<boolean>(false);
   const [hasFetched, setHasFetched] = useState<boolean>(false);
   
-  // Nơi lưu trữ danh sách thông báo đã qua bộ lọc quá hạn
-  const [adminNotis, setAdminNotis] = useState<DeviceNotification.NotificationItem[]>([]);
 
   /** 1. TÌM KIẾM & LỌC DANH SÁCH ĐƠN (Khớp endpoint /all và /search của Java) */
   const fetchRequests = useCallback(async (filters?: { keyword?: string; status?: string }) => {
@@ -88,33 +85,13 @@ export default function useRequestModel() {
     }
   }, [fetchRequests]);
 
-  /** Thông báo */
-  const fetchAdminNotifications = useCallback(async () => {
-    try {
-      const res = await getAllNotifications();
-      const rawList = Array.isArray(res) ? res : (res as any)?.data || [];
-      
-      // 🎯 BỘ LỌC CHỈ ĐỊNH: Lọc sạch sẽ, chỉ giữ lại thông báo chứa chữ 'quá hạn'
-      const overdueOnly = rawList.filter((item: DeviceNotification.NotificationItem) => 
-        item.title?.toLowerCase().includes('quá hạn') || 
-        item.content?.toLowerCase().includes('quá hạn')
-      );
-
-      setAdminNotis(overdueOnly);
-    } catch (error) {
-      console.error('Không thể tải nhật ký thông báo tự động từ Server:', error);
-    }
-  }, []);
-
   return {
     requests: hasFetched ? displayedRequests : allRequests,
     currentRequest,    
-    adminNotis,
     loading,
     detailLoading,     
     fetchRequests,
     fetchRequestDetail, 
     handleUpdateStatus,
-    fetchAdminNotifications,
   };
 }

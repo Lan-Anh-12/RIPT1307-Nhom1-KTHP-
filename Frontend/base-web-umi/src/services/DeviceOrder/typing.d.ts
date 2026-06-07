@@ -14,12 +14,3 @@ declare namespace DeviceRequest {
   }
 }
 
-declare namespace DeviceNotification {
-  interface NotificationItem {
-    id: number;           // Khóa chính
-    userId: number;       // ID của sinh viên nhận thông báo
-    title: string;        // Tiêu đề thông báo
-    content: string;      // Nội dung thông báo tự động sinh ra từ hệ thống
-    isRead: boolean;      // Trạng thái sinh viên đã đọc hay chưa
-  }
-}

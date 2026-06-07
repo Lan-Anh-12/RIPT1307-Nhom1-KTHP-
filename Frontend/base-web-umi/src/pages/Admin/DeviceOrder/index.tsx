@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useModel } from 'umi';
 import { Table, Input, Select, Tag, Button } from 'antd';
 import { SearchOutlined, EyeOutlined } from '@ant-design/icons';
-import NotificationBell from './notify';
 import DetailModal from './form'; 
 
 const DeviceOrder: React.FC = () => {
-  // Gọi các trạng thái và hàm từ Model (Đảm bảo đường dẫn namespace 'deviceOrder.requestModel' khớp với config của bạn)
+  // Gọi các trạng thái và hàm từ Model 
   const { 
     requests, 
     loading, 
@@ -39,7 +38,7 @@ const DeviceOrder: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  //  Cấu hình các cột của bảng hiển thị - Đã map chuẩn 100% trường dữ liệu Java DTO
+  //  Cấu hình các cột của bảng hiển thị 
   const columns = [
     { 
       title: 'Mã yêu cầu', 
@@ -121,13 +120,10 @@ const DeviceOrder: React.FC = () => {
   return (
     <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh', padding: '20px' }}>
       
-      {/* THANH TIÊU ĐỀ TRÊN CÙNG & QUẢ CHUÔNG THÔNG BÁO QUÁ HẠN */}
+      {/* THANH TIÊU ĐỀ */}
       <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2 style={{ margin: 0, fontWeight: 600, fontSize: '20px', color: '#1f1f1f' }}>Quản lý yêu cầu mượn thiết bị</h2>
         
-        {/* Component quả chuông hiển thị thông báo quá hạn tự động */}
-        <NotificationBell />
-
       </div>
 
       {/* BỘ LỌC TÌM KIẾM THEO TÊN VÀ TRẠNG THÁI */}

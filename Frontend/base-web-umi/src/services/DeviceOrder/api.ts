@@ -43,10 +43,3 @@ export async function updateOrderStatus(idRequest: number | string, status: 'APP
   return axios.put(`${BASE_URL}/api/requests/${idRequest}/status`, { status });
 }
 
-/**  6. API Lấy toàn bộ danh sách thông báo tự động từ hệ thống (Để Admin lọc ra thông báo quá hạn)
- * GET /api/notifications
- */
-export async function getAllNotifications() {
-  return axios.get<DeviceNotification.NotificationItem[]>(`${BASE_URL}/api/notifications`, {
-  });
-}
