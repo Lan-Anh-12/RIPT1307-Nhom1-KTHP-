@@ -37,7 +37,7 @@ export default defineConfig({
 	},
 	// esbuild is father build tools
 	// https://umijs.org/plugins/plugin-esbuild
-	esbuild: {},
+	esbuild: false,
 	title: false,
 	ignoreMomentLocale: true,
 
