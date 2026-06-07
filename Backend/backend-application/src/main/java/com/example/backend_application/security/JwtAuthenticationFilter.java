@@ -21,6 +21,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) 
             throws ServletException, IOException {
         
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+        response.setStatus(HttpServletResponse.SC_OK);
+        filterChain.doFilter(request, response);
+        return;
+    }
         // 1. Lấy token từ header "Authorization: Bearer <token>"
         String header = request.getHeader("Authorization");
         
