@@ -26,6 +26,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable()) // Tắt bảo vệ CSRF (vì dùng Token)
             
+            
             // Chế độ không dùng Session (Stateless) - Bắt buộc cho JWT
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
